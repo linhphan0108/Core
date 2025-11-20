@@ -13,13 +13,13 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: MainActivityViewModel
     private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = MainViewModel(testDispatcher)
+        viewModel = MainActivityViewModel()
     }
 
     @After

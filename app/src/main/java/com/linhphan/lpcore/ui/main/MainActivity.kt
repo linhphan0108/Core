@@ -1,22 +1,26 @@
 package com.linhphan.lpcore.ui.main
 
+import android.content.Intent
 import android.view.LayoutInflater
 import androidx.activity.viewModels
 import com.linhphan.lpcore.databinding.ActivityMainBinding
-import com.linhphan.lpcore.ui.base.BaseActivity
+import com.linhphan.lpcore.ui.base.activity.BaseActivity
+import com.linhphan.lpcore.ui.twosidepannels.TwoSideScreenActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainActivityViewModel by viewModels()
 
     override fun getViewBinding(): ActivityMainBinding {
         return ActivityMainBinding.inflate(LayoutInflater.from(this))
     }
 
     override fun setupViews() {
-        // Setup UI elements here
+        binding.btnTwoSideScreen.setOnClickListener {
+            startActivity(Intent(this, TwoSideScreenActivity::class.java))
+        }
     }
 
     override fun setupObservers() {

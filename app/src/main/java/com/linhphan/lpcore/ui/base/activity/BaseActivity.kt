@@ -1,4 +1,4 @@
-package com.linhphan.lpcore.ui.base
+package com.linhphan.lpcore.ui.base.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
