@@ -16,7 +16,7 @@ This is a robust core structure for an Android application built with **Kotlin**
 The project is organized by feature/layer to maintain separation of concerns:
 
 ```text
-com.linhphan.LPCore
+com.linhphan.lpcore
 ├── di/                 # Dependency Injection modules (AppModule)
 ├── ui/
 │   ├── base/           # Base classes (BaseActivity, BaseViewModel)

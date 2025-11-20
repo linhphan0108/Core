@@ -1,4 +1,4 @@
-package com.linhphan.LPCore.ui.main
+package com.linhphan.lpcore.ui.main
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

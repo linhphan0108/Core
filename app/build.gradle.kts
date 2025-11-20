@@ -6,17 +6,17 @@ plugins {
 }
 
 android {
-    namespace = "com.linhphan.LPCore"
+    namespace = "com.linhphan.lpcore"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.linhphan.LPCore"
+        applicationId = "com.linhphan.lpcore"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.linhphan.LPCore.CustomTestRunner"
+        testInstrumentationRunner = "com.linhphan.lpcore.CustomTestRunner"
     }
 
     buildTypes {

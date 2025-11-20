@@ -1,4 +1,4 @@
-package com.linhphan.LPCore
+package com.linhphan.lpcore
 
 import org.junit.Test
 

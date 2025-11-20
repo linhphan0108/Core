@@ -1,4 +1,4 @@
-package com.linhphan.LPCore.ui.base
+package com.linhphan.lpcore.ui.base
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

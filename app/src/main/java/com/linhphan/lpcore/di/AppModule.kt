@@ -1,4 +1,4 @@
-package com.linhphan.LPCore.di
+package com.linhphan.lpcore.di
 
 import dagger.Module
 import dagger.Provides

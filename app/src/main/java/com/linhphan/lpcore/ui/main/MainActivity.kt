@@ -1,9 +1,9 @@
-package com.linhphan.LPCore.ui.main
+package com.linhphan.lpcore.ui.main
 
 import android.view.LayoutInflater
 import androidx.activity.viewModels
-import com.linhphan.LPCore.databinding.ActivityMainBinding
-import com.linhphan.LPCore.ui.base.BaseActivity
+import com.linhphan.lpcore.databinding.ActivityMainBinding
+import com.linhphan.lpcore.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

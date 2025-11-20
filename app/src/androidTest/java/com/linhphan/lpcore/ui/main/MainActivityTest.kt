@@ -1,4 +1,4 @@
-package com.linhphan.LPCore.ui.main
+package com.linhphan.lpcore.ui.main
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
