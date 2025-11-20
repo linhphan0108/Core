@@ -20,7 +20,8 @@ com.linhphan.lpcore
 ├── di/                 # Dependency Injection modules (AppModule)
 ├── ui/
 │   ├── base/           # Base classes (BaseActivity, BaseViewModel)
-│   └── main/           # Main feature (MainActivity, MainViewModel)
+│   ├── main/           # Main feature (MainActivity, MainViewModel)
+│   └── twosidepannels/ # Two-pane layout feature
 ├── data/               # Data models and State wrappers (Result)
 └── CoreApplication.kt  # Application class setup for Hilt
 ```
@@ -40,12 +41,15 @@ The project is configured for easy testing of both logic and UI.
 Located in `src/test/java`.
 *   Frameworks: JUnit 4, MockK, kotlinx-coroutines-test.
 *   Example: `MainViewModelTest` demonstrates how to test ViewModels using a test coroutine dispatcher.
+*   **PanelOneFragmentViewModelTest**: Demonstrates testing ViewModels with simulated delays and flow states.
 
 ### UI / Instrumented Tests
 Located in `src/androidTest/java`.
-*   Frameworks: Espresso, Hilt Testing.
+*   Frameworks: Espresso, Espresso Intents, Hilt Testing.
 *   **Custom Runner**: `CustomTestRunner` is configured to support Hilt injection in tests.
-*   Example: `MainActivityTest` demonstrates how to inject dependencies and test Activity launch.
+*   **HiltTestActivity**: A specialized activity to host fragments in isolation during tests.
+*   **launchFragmentInHiltContainer**: Helper function to launch fragments with Hilt support.
+*   **Example**: `MainActivityTest` validates UI elements and navigation intents. `PanelOneFragmentTest` verifies fragment UI in isolation.
 
 ## 🚀 Getting Started
 
