@@ -33,6 +33,7 @@ com.linhphan.lpcore
 │   │   ├── activity/   # BaseActivity, BaseActivityViewModel
 │   │   └── fragment/   # BaseFragment, BaseFragmentActivityViewModel
 │   ├── main/           # MainActivity
+│   ├── forecast/       # Forecast Feature UI
 │   └── twosidepannels/ # TwoSideScreenActivity and its fragments
 └── CoreApplication.kt  # Application class setup for Hilt
 ```
