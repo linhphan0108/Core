@@ -6,7 +6,6 @@ import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.domain.base.BaseUseCase
 import com.linhphan.lpcore.domain.model.Forecasts
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetForecastUseCase @Inject constructor(
@@ -14,7 +13,7 @@ class GetForecastUseCase @Inject constructor(
     @IoDispatcher ioDispatcher: CoroutineDispatcher
 ) : BaseUseCase<IGetForecastUseCase.Params, Forecasts>(ioDispatcher), IGetForecastUseCase {
 
-    override fun execute(parameters: IGetForecastUseCase.Params): Flow<Result<Forecasts>> {
+    override suspend fun execute(parameters: IGetForecastUseCase.Params): Result<Forecasts> {
         return repository.getForecast(parameters.lat, parameters.lon)
     }
 }

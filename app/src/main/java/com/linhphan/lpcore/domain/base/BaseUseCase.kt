@@ -1,9 +1,7 @@
 package com.linhphan.lpcore.domain.base
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 
 /**
  * Executes business logic synchronously or asynchronously using Coroutines.
@@ -11,18 +9,22 @@ import kotlinx.coroutines.flow.flowOn
 abstract class BaseUseCase<in P, R>(private val coroutineDispatcher: CoroutineDispatcher) {
 
     /**
-     * Executes the use case asynchronously and returns a [kotlinx.coroutines.flow.Flow].
+     * Executes the use case asynchronously and returns a [Result].
      *
-     * @return a [kotlinx.coroutines.flow.Flow] emitting the result.
+     * @return a [Result].
      */
-    operator fun invoke(parameters: P): Flow<Result<R>> {
-        return execute(parameters)
-            .catch { e -> emit(Result.Error(Exception(e))) }
-            .flowOn(coroutineDispatcher)
+    suspend operator fun invoke(parameters: P): Result<R> {
+        return try {
+            withContext(coroutineDispatcher) {
+                execute(parameters)
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 
     /**
      * Override this to set the code to be executed.
      */
-    protected abstract fun execute(parameters: P): Flow<Result<R>>
+    protected abstract suspend fun execute(parameters: P): Result<R>
 }

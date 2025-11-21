@@ -25,22 +25,25 @@ class ForecastActivityViewModel @Inject constructor(
 
     fun fetchForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
-            getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
-                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-                    }
-                    is Result.Success -> {
-                        val uiModel = forecastUiMapper.mapToUiModel(result.data)
-                        _uiState.value = uiModel.copy(isLoading = false)
-                    }
-                    is Result.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = result.exception.message
-                        )
-                        Timber.e(result.exception, "Error fetching forecast for lat=$lat, lon=$lon")
-                    }
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            
+            val result = getForecastUseCase(IGetForecastUseCase.Params(lat, lon))
+            
+            when (result) {
+                is Result.Success -> {
+                    val uiModel = forecastUiMapper.mapToUiModel(result.data)
+                    _uiState.value = uiModel.copy(isLoading = false)
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = result.exception.message
+                    )
+                    Timber.e(result.exception, "Error fetching forecast for lat=$lat, lon=$lon")
+                }
+                is Result.Loading -> {
+                    // Should not happen with one-shot suspend functions usually, 
+                    // but if you kept it in your sealed class, you could handle it.
                 }
             }
         }

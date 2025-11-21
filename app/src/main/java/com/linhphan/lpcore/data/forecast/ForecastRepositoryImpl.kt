@@ -6,9 +6,7 @@ import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.Forecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val API_KEY = "7012468a391221aa6b24073eb75e16a3"
@@ -19,16 +17,15 @@ class ForecastRepositoryImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ForecastRepository {
 
-    override fun getForecast(lat: Double, lon: Double): Flow<Result<Forecasts>> = flow {
-        emit(Result.Loading)
-        try {
+    override suspend fun getForecast(lat: Double, lon: Double): Result<Forecasts> = withContext(ioDispatcher) {
+        return@withContext try {
             // In a real app, you would check local storage first or use a mediator
             // For this example, we fetch from remote directly
             val response = apiService.getThreeHourIntervalForecast(lat = lat, lon = lon, apiKey = API_KEY)
             val forecast = mapper.mapToDomain(response)
-            emit(Result.Success(forecast))
+            Result.Success(forecast)
         } catch (e: Exception) {
-            emit(Result.Error(e))
+            Result.Error(e)
         }
-    }.flowOn(ioDispatcher)
+    }
 }
