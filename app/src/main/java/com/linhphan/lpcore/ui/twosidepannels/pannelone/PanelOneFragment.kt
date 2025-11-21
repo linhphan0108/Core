@@ -10,8 +10,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.linhphan.lpcore.data.Cake
-import com.linhphan.lpcore.data.Result
+import com.linhphan.lpcore.domain.model.Cake
+import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.databinding.FragmentPanelOneBinding
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
 import com.linhphan.lpcore.ui.main.MainActivityViewModel

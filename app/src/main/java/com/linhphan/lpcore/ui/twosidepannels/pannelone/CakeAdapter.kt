@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.linhphan.lpcore.data.Cake
+import com.linhphan.lpcore.domain.model.Cake
 import com.linhphan.lpcore.databinding.ItemCakeBinding
 
 class CakeAdapter(private val onItemClicked: (Cake) -> Unit) :

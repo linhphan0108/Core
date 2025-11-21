@@ -1,9 +1,10 @@
 package com.linhphan.lpcore.data.forecast
 
-import com.linhphan.lpcore.data.Result
 import com.linhphan.lpcore.data.forecast.remote.ForecastApiService
 import com.linhphan.lpcore.di.IoDispatcher
+import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.repository.ForecastRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

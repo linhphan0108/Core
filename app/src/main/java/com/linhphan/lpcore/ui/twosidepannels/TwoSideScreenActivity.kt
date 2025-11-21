@@ -5,8 +5,8 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.commit
 import com.linhphan.lpcore.R
-import com.linhphan.lpcore.data.Cake
 import com.linhphan.lpcore.databinding.ActivityTwoSideScreenBinding
+import com.linhphan.lpcore.domain.model.Cake
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.twosidepannels.pannelone.PanelOneFragment
 import com.linhphan.lpcore.ui.twosidepannels.panneltwo.PanelTwoFragment

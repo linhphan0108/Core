@@ -1,8 +1,8 @@
 package com.linhphan.lpcore.ui.twosidepannels.pannelone
 
 import androidx.lifecycle.viewModelScope
-import com.linhphan.lpcore.data.Cake
-import com.linhphan.lpcore.data.Result
+import com.linhphan.lpcore.domain.model.Cake
+import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.ui.base.fragment.BaseFragmentActivityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

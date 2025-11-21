@@ -1,7 +1,7 @@
 package com.linhphan.lpcore.ui.twosidepannels.pannelone
 
 import com.linhphan.lpcore.MainDispatcherRule
-import com.linhphan.lpcore.data.Result
+import com.linhphan.lpcore.domain.base.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy

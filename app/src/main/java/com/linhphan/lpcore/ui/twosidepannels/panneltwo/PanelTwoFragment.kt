@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.linhphan.lpcore.data.Cake
 import com.linhphan.lpcore.databinding.FragmentPanelTwoBinding
+import com.linhphan.lpcore.domain.model.Cake
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 

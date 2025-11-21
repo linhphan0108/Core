@@ -1,7 +1,7 @@
 package com.linhphan.lpcore.di
 
-import com.linhphan.lpcore.data.forecast.ForecastRepository
 import com.linhphan.lpcore.data.forecast.ForecastRepositoryImpl
+import com.linhphan.lpcore.domain.repository.ForecastRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

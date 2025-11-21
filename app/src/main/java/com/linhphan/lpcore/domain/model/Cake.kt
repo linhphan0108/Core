@@ -1,4 +1,4 @@
-package com.linhphan.lpcore.data
+package com.linhphan.lpcore.domain.model
 
 data class Cake(
     val id: Int,

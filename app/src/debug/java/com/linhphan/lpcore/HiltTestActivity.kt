@@ -1,7 +1,7 @@
 package com.linhphan.lpcore
 
 import androidx.appcompat.app.AppCompatActivity
-import com.linhphan.lpcore.data.Cake
+import com.linhphan.lpcore.domain.model.Cake
 import com.linhphan.lpcore.ui.twosidepannels.pannelone.PanelOneFragment
 import dagger.hilt.android.AndroidEntryPoint
 

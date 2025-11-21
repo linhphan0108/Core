@@ -1,6 +1,6 @@
-package com.linhphan.lpcore.data.forecast
+package com.linhphan.lpcore.domain.repository
 
-import com.linhphan.lpcore.data.Result
+import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.Forecasts
 import kotlinx.coroutines.flow.Flow
 

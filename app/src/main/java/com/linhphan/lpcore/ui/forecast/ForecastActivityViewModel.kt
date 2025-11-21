@@ -1,7 +1,7 @@
 package com.linhphan.lpcore.ui.forecast
 
 import androidx.lifecycle.viewModelScope
-import com.linhphan.lpcore.data.Result
+import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.ui.base.activity.BaseActivityViewModel
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
