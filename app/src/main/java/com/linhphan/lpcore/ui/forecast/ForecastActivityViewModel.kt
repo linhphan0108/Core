@@ -2,8 +2,10 @@ package com.linhphan.lpcore.ui.forecast
 
 import androidx.lifecycle.viewModelScope
 import com.linhphan.lpcore.data.Result
-import com.linhphan.lpcore.domain.usecase.GetForecastUseCase
+import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.ui.base.activity.BaseActivityViewModel
+import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
+import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ForecastActivityViewModel @Inject constructor(
-    private val getForecastUseCase: GetForecastUseCase,
+    private val getForecastUseCase: IGetForecastUseCase,
     private val forecastUiMapper: ForecastUiMapper
 ) : BaseActivityViewModel() {
 
@@ -23,7 +25,7 @@ class ForecastActivityViewModel @Inject constructor(
 
     fun fetchForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
-            getForecastUseCase(lat, lon).collect { result ->
+            getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)

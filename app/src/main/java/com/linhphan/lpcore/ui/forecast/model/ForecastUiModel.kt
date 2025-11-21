@@ -1,4 +1,4 @@
-package com.linhphan.lpcore.ui.forecast
+package com.linhphan.lpcore.ui.forecast.model
 
 data class ForecastUiModel(
     val cityTitle: String = "",

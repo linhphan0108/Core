@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.linhphan.lpcore.databinding.ItemForecastBinding
+import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
 
 class ForecastAdapter : ListAdapter<ForecastUiItem, ForecastAdapter.ForecastViewHolder>(ForecastDiffCallback()) {
 
