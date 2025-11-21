@@ -15,7 +15,7 @@ data class ForecastResponseDto(
     @SerializedName("cod") val cod: String?,
     @SerializedName("message") val message: Int?,
     @SerializedName("cnt") val cnt: Int?,
-    @SerializedName("list") val list: List<ForecastItemDto>?,
+    @SerializedName("list") val list: List<ForecastDto>?,
     @SerializedName("city") val city: CityDto?
 )
 
@@ -34,7 +34,7 @@ data class ForecastResponseDto(
  * @property sys System data (part of day).
  * @property dtTxt Time of data forecasted, ISO, UTC.
  */
-data class ForecastItemDto(
+data class ForecastDto(
     @SerializedName("dt") val dt: Long?,
     @SerializedName("main") val main: MainDto?,
     @SerializedName("weather") val weather: List<WeatherDto>?,

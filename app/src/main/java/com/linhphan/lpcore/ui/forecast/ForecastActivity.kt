@@ -7,7 +7,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
-import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,27 +43,15 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.isLoading.collect { isLoading ->
-                        binding.progressBar.isVisible = isLoading
-                    }
-                }
+                viewModel.uiState.collect { state ->
+                    binding.progressBar.isVisible = state.isLoading
 
-                launch {
-                    viewModel.error.collect { errorMsg ->
-                        if (errorMsg != null) {
-                            Snackbar.make(binding.rvForecast, errorMsg, Snackbar.LENGTH_LONG).show()
-                        }
+                    if (state.errorMessage != null) {
+                        Snackbar.make(binding.root, state.errorMessage, Snackbar.LENGTH_LONG).show()
                     }
-                }
 
-                launch {
-                    viewModel.forecast.collect { forecast ->
-                        forecast?.let {
-                            binding.tvCityTitle.text = getString(R.string.city_country_format, it.city.name, it.city.country)
-                            forecastAdapter.updateData(it.dailyForecasts)
-                        }
-                    }
+                    binding.tvCityTitle.text = state.cityTitle
+                    forecastAdapter.updateData(state.items)
                 }
             }
         }

@@ -2,18 +2,18 @@ package com.linhphan.lpcore.data.forecast
 
 import com.linhphan.lpcore.data.forecast.model.ForecastResponseDto
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.DailyForecast
 import com.linhphan.lpcore.domain.model.Forecast
+import com.linhphan.lpcore.domain.model.Forecasts
 import javax.inject.Inject
 
 class ForecastMapper @Inject constructor() {
-    fun mapToDomain(response: ForecastResponseDto): Forecast {
+    fun mapToDomain(response: ForecastResponseDto): Forecasts {
         val city = CityInfo(
             name = response.city?.name.orEmpty(),
             country = response.city?.country.orEmpty()
         )
         val list = response.list?.map { item ->
-            DailyForecast(
+            Forecast(
                 date = item.dt ?: 0L,
                 tempDay = item.main?.temp ?: 0.0,
                 tempMin = item.main?.tempMin ?: 0.0,
@@ -23,6 +23,6 @@ class ForecastMapper @Inject constructor() {
             )
         } ?: emptyList()
         
-        return Forecast(city, list)
+        return Forecasts(city, list)
     }
 }

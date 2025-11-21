@@ -3,7 +3,7 @@ package com.linhphan.lpcore.data.forecast
 import com.linhphan.lpcore.data.Result
 import com.linhphan.lpcore.data.forecast.remote.ForecastApiService
 import com.linhphan.lpcore.di.IoDispatcher
-import com.linhphan.lpcore.domain.model.Forecast
+import com.linhphan.lpcore.domain.model.Forecasts
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,7 +18,7 @@ class ForecastRepositoryImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ForecastRepository {
 
-    override fun getForecast(lat: Double, lon: Double): Flow<Result<Forecast>> = flow {
+    override fun getForecast(lat: Double, lon: Double): Flow<Result<Forecasts>> = flow {
         emit(Result.Loading)
         try {
             // In a real app, you would check local storage first or use a mediator

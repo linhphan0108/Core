@@ -2,7 +2,6 @@ package com.linhphan.lpcore.ui.forecast
 
 import androidx.lifecycle.viewModelScope
 import com.linhphan.lpcore.data.Result
-import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.usecase.GetForecastUseCase
 import com.linhphan.lpcore.ui.base.activity.BaseActivityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,24 +14,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ForecastActivityViewModel @Inject constructor(
-    private val getForecastUseCase: GetForecastUseCase
+    private val getForecastUseCase: GetForecastUseCase,
+    private val forecastUiMapper: ForecastUiMapper
 ) : BaseActivityViewModel() {
 
-    private val _forecast = MutableStateFlow<Forecast?>(null)
-    val forecast: StateFlow<Forecast?> = _forecast.asStateFlow()
+    private val _uiState = MutableStateFlow(ForecastUiModel())
+    val uiState: StateFlow<ForecastUiModel> = _uiState.asStateFlow()
 
     fun fetchForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
             getForecastUseCase(lat, lon).collect { result ->
                 when (result) {
-                    is Result.Loading -> setLoading(true)
+                    is Result.Loading -> {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+                    }
                     is Result.Success -> {
-                        setLoading(false)
-                        _forecast.value = result.data
+                        val uiModel = forecastUiMapper.mapToUiModel(result.data)
+                        _uiState.value = uiModel.copy(isLoading = false)
                     }
                     is Result.Error -> {
-                        setLoading(false)
-                        setError(result.exception.message)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = result.exception.message
+                        )
                         Timber.e(result.exception, "Error fetching forecast for lat=$lat, lon=$lon")
                     }
                 }
