@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import androidx.activity.viewModels
 import com.linhphan.lpcore.databinding.ActivityMainBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
+import com.linhphan.lpcore.ui.forecast.ForecastActivity
 import com.linhphan.lpcore.ui.twosidepannels.TwoSideScreenActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +21,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun setupViews() {
         binding.btnTwoSideScreen.setOnClickListener {
             startActivity(Intent(this, TwoSideScreenActivity::class.java))
+        }
+
+        binding.btnForecast.setOnClickListener {
+            startActivity(Intent(this, ForecastActivity::class.java))
         }
     }
 

@@ -38,6 +38,7 @@ android {
     
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -58,6 +59,13 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
+    
+    // Network
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    
+    // Logging
+    implementation(libs.timber)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
