@@ -19,15 +19,14 @@ The project is organized by layers to enforce separation of concerns:
 
 ```text
 com.linhphan.lpcore
-├── di/                 # Dependency Injection modules (AppModule)
-├── domain/             # Domain Layer (Business Logic)
-│   ├── base/           # BaseUseCase
-│   ├── model/          # Domain Models
-│   ├── usecase/        # Use Cases (e.g., GetForecastUseCase)
-│   └── mapper/         # Data to Domain Mappers
+├── di/                 # Dependency Injection modules (AppModule, RepositoryModule, etc.)
+├── domain/             # Domain Layer (Pure Kotlin Business Logic)
+│   ├── base/           # BaseUseCase, Result<T>
+│   ├── model/          # Domain Models (e.g., Cake, Forecasts)
+│   ├── repository/     # Repository Interfaces
+│   └── usecase/        # Use Cases (e.g., GetForecastUseCase)
 ├── data/               # Data Layer (Repository Implementation & Data Sources)
-│   ├── forecast/       # Feature specific data (Repository, Remote Service, Models)
-│   └── Result.kt       # State wrapper (Success, Error, Loading)
+│   └── forecast/       # Feature specific data (Repository Implementation, Remote Service, Models)
 ├── ui/                 # Presentation Layer
 │   ├── base/           
 │   │   ├── activity/   # BaseActivity, BaseActivityViewModel
@@ -40,13 +39,14 @@ com.linhphan.lpcore
 
 ### Key Components
 
-*   **Domain Layer**: Contains pure Kotlin logic.
-    *   **`BaseUseCase`**: Abstract base class for UseCases, handling coroutine context switching (usually to IO).
-    *   **`GetForecastUseCase`**: Example of a use case encapsulating specific business logic.
-*   **Data Layer**: Handles data retrieval.
-    *   **`ForecastRepository`**: Repository interface and implementation to manage data sources.
+*   **Domain Layer**: The heart of the application, independent of Android frameworks.
+    *   **`BaseUseCase`**: Abstract base class for UseCases using suspend functions, handling coroutine context switching.
     *   **`Result<T>`**: Sealed class to handle data states (`Success`, `Error`, `Loading`).
-*   **UI Layer**:
+    *   **`Repository Interfaces`**: Defined here to allow the Domain layer to communicate with the Data layer without dependency.
+*   **Data Layer**: Handles data retrieval and persistence.
+    *   **`ForecastRepositoryImpl`**: Implementation of the domain repository interface.
+    *   **`ForecastApiService`**: Retrofit interface for network calls.
+*   **UI Layer**: Handles User Interface and State.
     *   **`BaseActivity` & `BaseFragment`**: Abstract classes that handle `ViewBinding` inflation and standard setup.
     *   **`BaseActivityViewModel`**: Abstract ViewModel containing common state management.
 
@@ -58,7 +58,7 @@ The project is configured for easy testing of logic, repositories, and UI.
 Located in `src/test/java`.
 *   Frameworks: JUnit 4, MockK, kotlinx-coroutines-test.
 *   **MainDispatcherRule**: A custom rule to swap the Main dispatcher with a test dispatcher.
-*   **ViewModel Tests**: Testing ViewModels with simulated delays and flow states.
+*   **ViewModel Tests**: Testing ViewModels with simulated delays and flow states using `UnconfinedTestDispatcher`.
 
 ### UI / Instrumented Tests
 Located in `src/androidTest/java`.
