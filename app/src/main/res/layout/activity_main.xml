@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context="com.linhphan.lpcore.ui.main.MainActivity">
 
     <Button
         android:id="@+id/btn_two_side_screen"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Open Two Side Screen"
+        android:text="Two Side Screen"
+        android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_forecast"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,9 +21,10 @@
 
     <Button
         android:id="@+id/btn_forecast"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Open Forecast"
+        android:text="Forecast"
+        android:padding="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
