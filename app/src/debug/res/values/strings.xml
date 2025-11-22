@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name_config">LP App Config</string>
+    <string name="action_open_main_app">Open Main App</string>
 </resources>
