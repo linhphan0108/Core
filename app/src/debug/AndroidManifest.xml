@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application>
+    <application android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".HiltTestActivity"
             android:exported="false"
-            android:theme="@style/Theme.Core" />
+            android:theme="@style/Theme.LPCore" />
+        
+        <activity
+            android:name=".debug.AppConfigActivity"
+            android:label="@string/app_name_config"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_settings"
+            android:taskAffinity=".debug.AppConfig">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
