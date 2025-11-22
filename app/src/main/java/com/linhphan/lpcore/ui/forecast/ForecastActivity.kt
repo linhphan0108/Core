@@ -15,6 +15,7 @@ import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
@@ -24,6 +25,15 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
 
     override fun getViewBinding(): ActivityForecastBinding {
         return ActivityForecastBinding.inflate(LayoutInflater.from(this))
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            // Set a default city (e.g., the first one in your list)
+            val defaultCity = cities.random()
+            viewModel.coordinateUiModel = defaultCity.coordinate
+        }
     }
 
     override fun setupViews() {
@@ -36,15 +46,17 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
             // Clear focus to hide keyboard if needed
             binding.etCityName.clearFocus()
         }
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) {
-            // Set a default city (e.g., the first one in your list)
-            val defaultCity = cities.random()
-            binding.etCityName.setText(defaultCity.toString(), false) // false prevents the dropdown from showing
-            viewModel.coordinateUiModel = defaultCity.coordinate
+        // Show dropdown immediately when focused (if empty or not)
+        binding.etCityName.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.etCityName.showDropDown()
+                Timber.i("etCityName focused")
+            }
+        }
+        binding.etCityName.setOnClickListener {
+            binding.etCityName.showDropDown()
+            Timber.i("etCityName clicked")
         }
     }
 
