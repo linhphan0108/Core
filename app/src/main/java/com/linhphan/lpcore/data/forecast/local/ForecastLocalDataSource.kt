@@ -1,6 +1,5 @@
 package com.linhphan.lpcore.data.forecast.local
 
-import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
@@ -13,6 +12,9 @@ interface ForecastLocalDataSource {
     suspend fun saveForecast(forecasts: Forecasts)
 }
 
+private const val NUMBER_OF_FORECASTS_TO_KEEP = 40 //todo: move to config
+
+
 class ForecastLocalDataSourceImpl @Inject constructor(
     private val forecastDao: ForecastDao
 ) : ForecastLocalDataSource {
@@ -24,7 +26,7 @@ class ForecastLocalDataSourceImpl @Inject constructor(
             } else {
                 val first = entities.first()
                 val cityInfo = CityInfo(first.cityName, first.country)
-                val forecastList = entities.map {
+                val forecastList = entities.sortedBy { it.id }.map {
                     Forecast(
                         date = it.date,
                         tempDay = it.tempDay,
@@ -41,20 +43,21 @@ class ForecastLocalDataSourceImpl @Inject constructor(
 
     override suspend fun saveForecast(forecasts: Forecasts) {
         try {
-            forecastDao.clearAll()
-            val entities = forecasts.forecasts.map {
-                ForecastEntity(
-                    cityName = forecasts.city.name,
-                    country = forecasts.city.country,
-                    date = it.date,
-                    tempDay = it.tempDay,
-                    tempMin = it.tempMin,
-                    tempMax = it.tempMax,
-                    weatherDescription = it.weatherDescription,
-                    icon = it.icon
-                )
-            }
-            forecastDao.insertAll(entities)
+            val entities = forecasts.forecasts.sortedBy { it.date }
+                .mapIndexed { index, forecast ->
+                    ForecastEntity(
+                        id = index.toLong(),
+                        cityName = forecasts.city.name,
+                        country = forecasts.city.country,
+                        date = forecast.date,
+                        tempDay = forecast.tempDay,
+                        tempMin = forecast.tempMin,
+                        tempMax = forecast.tempMax,
+                        weatherDescription = forecast.weatherDescription,
+                        icon = forecast.icon
+                    )
+                }
+            forecastDao.insertForecastsWithLimit(entities, NUMBER_OF_FORECASTS_TO_KEEP)
         } catch (e: Exception) {
             // Log error or handle appropriately
         }
