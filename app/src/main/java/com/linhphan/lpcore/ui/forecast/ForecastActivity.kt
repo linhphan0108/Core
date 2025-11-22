@@ -37,6 +37,9 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     }
 
     override fun setupViews() {
+        // Show the back arrow in the Action Bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         binding.rvForecast.adapter = forecastAdapter
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
         binding.etCityName.setAdapter(adapter)
@@ -58,6 +61,11 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
             binding.etCityName.showDropDown()
             Timber.i("etCityName clicked")
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     override fun setupObservers() {
