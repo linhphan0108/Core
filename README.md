@@ -1,17 +1,65 @@
 # Core Android Project
 
-This is a robust core structure for an Android application built with **Kotlin**, following **Clean Architecture** and the **MVVM (Model-View-ViewModel)** pattern, utilizing modern Android development best practices.
+This is a robust core structure for an Android application built with **Kotlin**, following **Clean Architecture** and the **MVVM (Model-View-ViewModel)** pattern, utilizing modern Android development best practices and the **Single Source of Truth (SSOT)** principle.
 
 ## 🛠 Tech Stack
 
 *   **Language**: [Kotlin](https://kotlinlang.org/)
-*   **Architecture**: Clean Architecture + MVVM
+*   **Architecture**: Clean Architecture + MVVM + Repository Pattern (SSOT)
 *   **Dependency Injection**: [Dagger Hilt](https://dagger.dev/hilt/)
 *   **Asynchronous Programming**: [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
 *   **Network**: [Retrofit](https://square.github.io/retrofit/) with Gson
+*   **Local Storage**: [Room Database](https://developer.android.com/training/data-storage/room)
 *   **UI**: XML Layouts with [ViewBinding](https://developer.android.com/topic/libraries/view-binding)
 *   **Lifecycle**: [AndroidX Lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle)
 *   **Logging**: [Timber](https://github.com/JakeWharton/timber)
+
+## 🏗 High-Level Architecture
+
+```mermaid
+graph TD
+    subgraph UI_Layer [UI Layer]
+        Activity[ForecastActivity]
+        ViewModel[ForecastActivityViewModel]
+        Activity -->|Observes State| ViewModel
+        Activity -->|Triggers Events| ViewModel
+    end
+
+    subgraph Domain_Layer [Domain Layer]
+        GetUseCase[GetForecastUseCase]
+        RefreshUseCase[RefreshForecastUseCase]
+        RepoInterface[<<Interface>>\nForecastRepository]
+        Model[Domain Models\n(Forecasts, Result)]
+        
+        ViewModel -->|Injects| GetUseCase
+        ViewModel -->|Injects| RefreshUseCase
+        GetUseCase -->|Calls| RepoInterface
+        RefreshUseCase -->|Calls| RepoInterface
+    end
+
+    subgraph Data_Layer [Data Layer]
+        RepoImpl[ForecastRepositoryImpl]
+        LocalDS[ForecastLocalDataSource]
+        RemoteDS[ForecastRemoteDataSource]
+        Dao[ForecastDao \n(Room)]
+        Api[ForecastApiService \n(Retrofit)]
+        DB[(Local Database)]
+        Cloud((Remote API))
+
+        RepoImpl ..|>|Implements| RepoInterface
+        RepoImpl -->|Get/Save| LocalDS
+        RepoImpl -->|Fetch| RemoteDS
+        
+        LocalDS -->|Uses| Dao
+        Dao <-->|Read/Write| DB
+        
+        RemoteDS -->|Uses| Api
+        Api <-->|HTTP| Cloud
+    end
+
+    %% Data Flow Annotations
+    linkStyle default stroke-width:2px,fill:none,stroke:gray;
+```
 
 ## 📂 Project Structure
 
@@ -21,18 +69,21 @@ The project is organized by layers to enforce separation of concerns:
 com.linhphan.lpcore
 ├── di/                 # Dependency Injection modules (AppModule, RepositoryModule, etc.)
 ├── domain/             # Domain Layer (Pure Kotlin Business Logic)
-│   ├── base/           # BaseUseCase, Result<T>
+│   ├── base/           # Base classes (BaseFlowUseCase, BaseSuspendUseCase, Result<T>)
 │   ├── model/          # Domain Models (e.g., Cake, Forecasts)
 │   ├── repository/     # Repository Interfaces
-│   └── usecase/        # Use Cases (e.g., GetForecastUseCase)
+│   └── usecase/        # Use Cases (e.g., GetForecastUseCase, RefreshForecastUseCase)
 ├── data/               # Data Layer (Repository Implementation & Data Sources)
-│   └── forecast/       # Feature specific data (Repository Implementation, Remote Service, Models)
+│   └── forecast/       # Forecast feature data
+│       ├── local/      # Room Database (Dao, Entities, LocalDataSource)
+│       ├── remote/     # Retrofit Service (RemoteDataSource)
+│       └── ForecastRepositoryImpl.kt # Repository implementation coordinating Local & Remote
 ├── ui/                 # Presentation Layer
 │   ├── base/           
 │   │   ├── activity/   # BaseActivity, BaseActivityViewModel
 │   │   └── fragment/   # BaseFragment, BaseFragmentActivityViewModel
 │   ├── main/           # MainActivity
-│   ├── forecast/       # Forecast Feature UI
+│   ├── forecast/       # Forecast Feature UI (ViewModel, Activity, Adapter)
 │   └── twosidepannels/ # TwoSideScreenActivity and its fragments
 └── CoreApplication.kt  # Application class setup for Hilt
 ```
@@ -40,15 +91,15 @@ com.linhphan.lpcore
 ### Key Components
 
 *   **Domain Layer**: The heart of the application, independent of Android frameworks.
-    *   **`BaseUseCase`**: Abstract base class for UseCases using suspend functions, handling coroutine context switching.
+    *   **`BaseFlowUseCase` & `BaseSuspendUseCase`**: Abstract base classes for UseCases, standardized for `Flow` streams or `suspend` calls.
     *   **`Result<T>`**: Sealed class to handle data states (`Success`, `Error`, `Loading`).
-    *   **`Repository Interfaces`**: Defined here to allow the Domain layer to communicate with the Data layer without dependency.
-*   **Data Layer**: Handles data retrieval and persistence.
-    *   **`ForecastRepositoryImpl`**: Implementation of the domain repository interface.
-    *   **`ForecastApiService`**: Retrofit interface for network calls.
+*   **Data Layer**: Implements the **Single Source of Truth** pattern.
+    *   **`ForecastRepositoryImpl`**: 
+        *   Exposes a `Flow` of data from the **Local Data Source** (Room).
+        *   Fetches data from the **Remote Data Source** (Retrofit) and saves it to Local.
+        *   The UI observes the Local data flow, ensuring it always displays the latest persisted state.
 *   **UI Layer**: Handles User Interface and State.
-    *   **`BaseActivity` & `BaseFragment`**: Abstract classes that handle `ViewBinding` inflation and standard setup.
-    *   **`BaseActivityViewModel`**: Abstract ViewModel containing common state management.
+    *   **`ForecastActivityViewModel`**: Uses `SavedStateHandle` to persist search coordinates. Triggers data refreshes and observes the domain UseCases.
 
 ## ✅ Testing
 
