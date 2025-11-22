@@ -60,30 +60,31 @@ class PanelOneFragment : BaseFragment<FragmentPanelOneBinding, PanelOneFragmentV
 
     override fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
+
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.cakes.collect { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            binding.progressBar.visibility = View.VISIBLE
-                            binding.rvCakes.visibility = View.GONE
-                            binding.tvError.visibility = View.GONE
-                            binding.btnRetry.visibility = View.GONE
-                        }
-                        is Result.Success -> {
+//                    when (result) {
+//                        is Result.Loading -> {
+//                            binding.progressBar.visibility = View.VISIBLE
+//                            binding.rvCakes.visibility = View.GONE
+//                            binding.tvError.visibility = View.GONE
+//                            binding.btnRetry.visibility = View.GONE
+//                        }
+//                        is Result.Success<*> -> {
                             binding.progressBar.visibility = View.GONE
                             binding.rvCakes.visibility = View.VISIBLE
                             binding.tvError.visibility = View.GONE
                             binding.btnRetry.visibility = View.GONE
-                            adapter.submitList(result.data)
-                        }
-                        is Result.Error -> {
-                            binding.progressBar.visibility = View.GONE
-                            binding.rvCakes.visibility = View.GONE
-                            binding.tvError.visibility = View.VISIBLE
-                            binding.btnRetry.visibility = View.VISIBLE
-                            binding.tvError.text = result.exception.message ?: "Unknown error"
-                        }
-                    }
+                            adapter.submitList(result ?: emptyList<Cake>())
+//                        }
+//                        is Result.Error -> {
+//                            binding.progressBar.visibility = View.GONE
+//                            binding.rvCakes.visibility = View.GONE
+//                            binding.tvError.visibility = View.VISIBLE
+//                            binding.btnRetry.visibility = View.VISIBLE
+//                            binding.tvError.text = result.exception.message ?: "Unknown error"
+//                        }
+//                    }
                 }
             }
         }

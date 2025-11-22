@@ -1,5 +1,6 @@
 package com.linhphan.lpcore.ui.forecast
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
@@ -9,6 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
+import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -17,6 +19,18 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
 
     private val viewModel: ForecastActivityViewModel by viewModels()
     private val forecastAdapter = ForecastAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // ... binding setup ...
+
+        if (savedInstanceState == null) {
+            // Trigger the initial load only on the first creation.
+            // This assignment fires the observable in the ViewModel.
+            viewModel.coordinateUiModel = CoordinateUiModel(lat = 51.5074, lon = -0.1278)
+        }
+    }
+
 
     override fun getViewBinding(): ActivityForecastBinding {
         return ActivityForecastBinding.inflate(LayoutInflater.from(this))
@@ -35,7 +49,7 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
                 // Mocking London coordinates for demonstration since API requires lat/lon
                 val lat = 51.5074
                 val lon = -0.1278
-                viewModel.fetchForecast(lat, lon)
+                viewModel.refreshForecast(lat, lon)
             }
         }
     }
@@ -43,13 +57,19 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    binding.progressBar.isVisible = state.isLoading
+                viewModel.isLoading.collect {
+                    binding.progressBar.isVisible = it
 
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
                     if (state.errorMessage != null) {
                         Snackbar.make(binding.root, state.errorMessage, Snackbar.LENGTH_LONG).show()
                     }
-
                     binding.tvCityTitle.text = state.cityTitle
                     forecastAdapter.updateData(state.items)
                 }

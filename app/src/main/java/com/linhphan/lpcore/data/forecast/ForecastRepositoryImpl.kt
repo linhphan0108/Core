@@ -1,29 +1,51 @@
 package com.linhphan.lpcore.data.forecast
 
-import com.linhphan.lpcore.data.forecast.remote.ForecastApiService
+import com.linhphan.lpcore.data.forecast.local.ForecastLocalDataSource
+import com.linhphan.lpcore.data.forecast.remote.ForecastRemoteDataSource
 import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.Forecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
-private const val API_KEY = "7012468a391221aa6b24073eb75e16a3"
-
 class ForecastRepositoryImpl @Inject constructor(
-    private val apiService: ForecastApiService,
-    private val mapper: ForecastMapper,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val remoteDataSource: ForecastRemoteDataSource,
+    private val localDataSource: ForecastLocalDataSource,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ForecastRepository {
 
-    override suspend fun getForecast(lat: Double, lon: Double): Result<Forecasts> = withContext(ioDispatcher) {
-        return@withContext try {
-            // In a real app, you would check local storage first or use a mediator
-            // For this example, we fetch from remote directly
-            val response = apiService.getThreeHourIntervalForecast(lat = lat, lon = lon, apiKey = API_KEY)
-            val forecast = mapper.mapToDomain(response)
-            Result.Success(forecast)
+    override fun getForecast(lat: Double, lon: Double): Flow<Result<Forecasts>> {
+        return localDataSource.getForecast()
+            .distinctUntilChanged()
+            .map { forecast ->
+                if (forecast != null) {
+                    Timber.i("${forecast.forecasts.size} forecasts fetched from local DB")
+                    Result.Success(forecast)
+                } else {
+                    Result.Error(Exception("No local data found"))
+                }
+            }
+            .flowOn(ioDispatcher)
+    }
+
+    override suspend fun refreshForecast(lat: Double, lon: Double): Result<Unit> = withContext(ioDispatcher) {
+        try {
+            when (val remoteResult = remoteDataSource.getForecast(lat, lon)) {
+                is Result.Success -> {
+                    localDataSource.saveForecast(remoteResult.data)
+                    Result.Success(Unit)
+                }
+                is Result.Error -> {
+                    Result.Error(remoteResult.exception)
+                }
+            }
         } catch (e: Exception) {
             Result.Error(e)
         }

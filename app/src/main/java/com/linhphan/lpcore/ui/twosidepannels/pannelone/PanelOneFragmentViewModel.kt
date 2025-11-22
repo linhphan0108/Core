@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -23,8 +24,8 @@ class PanelOneFragmentViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseFragmentActivityViewModel(){
 
-    private val _cakes = MutableStateFlow<Result<List<Cake>>>(Result.Loading)
-    val cakes: StateFlow<Result<List<Cake>>> = _cakes.asStateFlow()
+    private val _cakes = MutableStateFlow<List<Cake>?>(null)
+    val cakes: StateFlow<List<Cake>?> = _cakes.asStateFlow()
 
     init {
         loadCakes()
@@ -32,7 +33,7 @@ class PanelOneFragmentViewModel @Inject constructor(
 
     fun loadCakes() {
         viewModelScope.launch(ioDispatcher) {
-            _cakes.value = Result.Loading
+//            _cakes.value = Result.Loading
             try {
                 // Simulate network delay
                 delay(1000)
@@ -43,9 +44,10 @@ class PanelOneFragmentViewModel @Inject constructor(
                     Cake(4, "Red Velvet Cake", "Rich red velvet cake"),
                     Cake(5, "Carrot Cake", "Healthy carrot cake")
                 )
-                _cakes.value = Result.Success(cakeList)
+                _cakes.value = cakeList
             } catch (e: Exception) {
-                _cakes.value = Result.Error(e)
+                Timber.e(e)
+//                _cakes.value = Result.Error(e)
             }
         }
     }

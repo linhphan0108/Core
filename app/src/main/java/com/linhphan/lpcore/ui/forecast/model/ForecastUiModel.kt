@@ -3,7 +3,6 @@ package com.linhphan.lpcore.ui.forecast.model
 data class ForecastUiModel(
     val cityTitle: String = "",
     val items: List<ForecastUiItem> = emptyList(),
-    val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
 
