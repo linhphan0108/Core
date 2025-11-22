@@ -22,7 +22,7 @@ jobs:
           java-version: '21'
 
       - name: Unit tests
-        run: ./gradlew testDevelopDebugUnitTest --stacktrace
+        run: ./gradlew testDebugUnitTest --stacktrace
 
   build:
     runs-on: ubuntu-latest
