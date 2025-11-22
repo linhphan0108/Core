@@ -6,14 +6,14 @@ import kotlinx.coroutines.withContext
 /**
  * Executes business logic synchronously or asynchronously using Coroutines.
  */
-abstract class BaseSuspendUseCase<in P, R>(private val coroutineDispatcher: CoroutineDispatcher) {
+abstract class SuspendUseCase<in P, R>(private val coroutineDispatcher: CoroutineDispatcher): ISuspendUseCase<P, R> {
 
     /**
      * Executes the use case asynchronously and returns a [Result].
      *
      * @return a [Result].
      */
-    suspend operator fun invoke(parameters: P): Result<R> {
+    override suspend operator fun invoke(parameters: P): Result<R> {
         return try {
             withContext(coroutineDispatcher) {
                 execute(parameters)
