@@ -1,9 +1,9 @@
 package com.linhphan.lpcore.di
 
-import com.linhphan.lpcore.domain.usecase.GetForecastUseCaseBase
+import com.linhphan.lpcore.domain.usecase.impl.GetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IRefreshForecastUseCase
-import com.linhphan.lpcore.domain.usecase.RefreshForecastUseCase
+import com.linhphan.lpcore.domain.usecase.impl.RefreshForecastUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun bindGetForecastUseCase(
-        getForecastUseCase: GetForecastUseCaseBase
+        getForecastUseCase: GetForecastUseCase
     ): IGetForecastUseCase
 
     @Binds
