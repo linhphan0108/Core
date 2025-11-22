@@ -66,7 +66,7 @@ The project is configured for easy testing of logic, repositories, and UI.
 
 ### Unit Tests
 Located in `src/test/java`.
-*   Frameworks: JUnit 4, MockK, kotlinx-coroutines-test.
+*   Frameworks: JUnit 4, MockK, kotlinx-coroutines-test, **kotlin-test**.
 *   **MainDispatcherRule**: A custom rule to swap the Main dispatcher with a test dispatcher.
 *   **ViewModel Tests**: Testing ViewModels with simulated delays and flow states using `UnconfinedTestDispatcher`.
 
