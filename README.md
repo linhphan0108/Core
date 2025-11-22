@@ -28,8 +28,8 @@ graph TD
     subgraph Domain_Layer [Domain Layer]
         GetUseCase[GetForecastUseCase]
         RefreshUseCase[RefreshForecastUseCase]
-        RepoInterface[<<Interface>>\nForecastRepository]
-        Model[Domain Models\n(Forecasts, Result)]
+        RepoInterface["<<Interface>>\nForecastRepository"]
+        Model["Domain Models\n(Forecasts, Result)"]
         
         ViewModel -->|Injects| GetUseCase
         ViewModel -->|Injects| RefreshUseCase
@@ -41,8 +41,8 @@ graph TD
         RepoImpl[ForecastRepositoryImpl]
         LocalDS[ForecastLocalDataSource]
         RemoteDS[ForecastRemoteDataSource]
-        Dao[ForecastDao \n(Room)]
-        Api[ForecastApiService \n(Retrofit)]
+        Dao["ForecastDao \n(Room)"]
+        Api["ForecastApiService \n(Retrofit)"]
         DB[(Local Database)]
         Cloud((Remote API))
 
