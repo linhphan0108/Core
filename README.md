@@ -16,50 +16,9 @@ This is a robust core structure for an Android application built with **Kotlin**
 
 ## 🏗 High-Level Architecture
 
-```mermaid
-graph TD
-    subgraph UI_Layer [UI Layer]
-        Activity[ForecastActivity]
-        ViewModel[ForecastActivityViewModel]
-        Activity -->|Observes State| ViewModel
-        Activity -->|Triggers Events| ViewModel
-    end
+![Architecture Diagram](architecture.png)
 
-    subgraph Domain_Layer [Domain Layer]
-        GetUseCase[GetForecastUseCase]
-        RefreshUseCase[RefreshForecastUseCase]
-        RepoInterface["<<Interface>>\nForecastRepository"]
-        Model["Domain Models\n(Forecasts, Result)"]
-        
-        ViewModel -->|Injects| GetUseCase
-        ViewModel -->|Injects| RefreshUseCase
-        GetUseCase -->|Calls| RepoInterface
-        RefreshUseCase -->|Calls| RepoInterface
-    end
-
-    subgraph Data_Layer [Data Layer]
-        RepoImpl[ForecastRepositoryImpl]
-        LocalDS[ForecastLocalDataSource]
-        RemoteDS[ForecastRemoteDataSource]
-        Dao["ForecastDao \n(Room)"]
-        Api["ForecastApiService \n(Retrofit)"]
-        DB[(Local Database)]
-        Cloud((Remote API))
-
-        RepoImpl ..|>|Implements| RepoInterface
-        RepoImpl -->|Get/Save| LocalDS
-        RepoImpl -->|Fetch| RemoteDS
-        
-        LocalDS -->|Uses| Dao
-        Dao <-->|Read/Write| DB
-        
-        RemoteDS -->|Uses| Api
-        Api <-->|HTTP| Cloud
-    end
-
-    %% Data Flow Annotations
-    linkStyle default stroke-width:2px,fill:none,stroke:gray;
-```
+> **Note**: You can view the Mermaid diagram source code in [ARCHITECTURE.md](ARCHITECTURE.md) or generate an updated image using the [Mermaid Live Editor](https://mermaid.live/).
 
 ## 📂 Project Structure
 
