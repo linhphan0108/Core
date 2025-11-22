@@ -2,6 +2,7 @@ package com.linhphan.lpcore.ui.forecast
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -10,9 +11,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
-import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
+import com.linhphan.lpcore.ui.forecast.model.CityUiModel
+import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
@@ -20,37 +23,40 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     private val viewModel: ForecastActivityViewModel by viewModels()
     private val forecastAdapter = ForecastAdapter()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // ... binding setup ...
-
-        if (savedInstanceState == null) {
-            // Trigger the initial load only on the first creation.
-            // This assignment fires the observable in the ViewModel.
-            viewModel.coordinateUiModel = CoordinateUiModel(lat = 51.5074, lon = -0.1278)
-        }
-    }
-
-
     override fun getViewBinding(): ActivityForecastBinding {
         return ActivityForecastBinding.inflate(LayoutInflater.from(this))
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            // Set a default city (e.g., the first one in your list)
+            val defaultCity = cities.random()
+            viewModel.coordinateUiModel = defaultCity.coordinate
+        }
+    }
+
     override fun setupViews() {
         binding.rvForecast.adapter = forecastAdapter
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
+        binding.etCityName.setAdapter(adapter)
+        binding.etCityName.setOnItemClickListener { parent, _, position, _ ->
+            val city = parent.getItemAtPosition(position) as CityUiModel
+            viewModel.coordinateUiModel = city.coordinate
+            // Clear focus to hide keyboard if needed
+            binding.etCityName.clearFocus()
+        }
 
-        binding.btnSearch.setOnClickListener {
-            val cityName = binding.etCityName.text.toString()
-            if (cityName.isNotBlank()) {
-                // Note: In a real app, you would use Geocoder to get lat/lon from city name
-                // For now, we will just mock the lat/lon for London as an example
-                // or you can update the UI to accept lat/lon
-
-                // Mocking London coordinates for demonstration since API requires lat/lon
-                val lat = 51.5074
-                val lon = -0.1278
-                viewModel.refreshForecast(lat, lon)
+        // Show dropdown immediately when focused (if empty or not)
+        binding.etCityName.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.etCityName.showDropDown()
+                Timber.i("etCityName focused")
             }
+        }
+        binding.etCityName.setOnClickListener {
+            binding.etCityName.showDropDown()
+            Timber.i("etCityName clicked")
         }
     }
 

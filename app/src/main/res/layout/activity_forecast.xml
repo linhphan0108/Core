@@ -6,24 +6,26 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <EditText
-        android:id="@+id/etCityName"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilCityName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter City Name"
         android:layout_margin="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/btnSearch"
+        android:hint="Enter City Name"
+        app:endIconMode="clear_text"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/btnSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/etCityName"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <AutoCompleteTextView
+            android:id="@+id/etCityName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:completionThreshold="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/tvCityTitle"
@@ -34,7 +36,7 @@
         tools:text="London, GB"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etCityName" />
+        app:layout_constraintTop_toBottomOf="@+id/tilCityName" />
 
     <ProgressBar
         android:id="@+id/progressBar"

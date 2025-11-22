@@ -9,6 +9,7 @@ import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,8 @@ class ForecastActivityViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ForecastUiModel())
     val uiState: StateFlow<ForecastUiModel> = _uiState.asStateFlow()
+    
+    private var fetchForecastJob: Job? = null
 
     var coordinateUiModel: CoordinateUiModel by Delegates.observable(
         initialValue = CoordinateUiModel(0.0, 0.0)
@@ -36,7 +39,8 @@ class ForecastActivityViewModel @Inject constructor(
     }
 
     fun fetchForecast(lat: Double, lon: Double) {
-        viewModelScope.launch {
+        fetchForecastJob?.cancel()
+        fetchForecastJob = viewModelScope.launch {
             getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
                  when (result) {
                     is Result.Success -> {
