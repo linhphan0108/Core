@@ -72,6 +72,10 @@ dependencies {
     // Logging
     implementation(libs.timber)
 
+    // Coil
+    implementation(libs.coil)
+    implementation(libs.coil.gif)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
