@@ -14,6 +14,7 @@ import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityAppConfigBinding
 import com.linhphan.lpcore.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -47,6 +48,15 @@ class AppConfigActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        // Network Configuration Listeners
+        binding.rgNetworkType.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbRemote -> viewModel.setEmbeddedServerEnabled(false)
+                R.id.rbEmbedded -> viewModel.setEmbeddedServerEnabled(true)
+            }
+        }
+        
+        // Data Management Listeners
         binding.btnClearData.setOnClickListener {
             viewModel.clearAppData()
         }
@@ -64,14 +74,30 @@ class AppConfigActivity : AppCompatActivity() {
     private fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.eventFlow.collect { event ->
-                    when (event) {
-                        is AppConfigViewModel.AppConfigEvent.DataCleared -> {
-                            Toast.makeText(this@AppConfigActivity, "${event.message}. Restarting...", Toast.LENGTH_SHORT).show()
-                            restartApp()
+                launch {
+                    viewModel.eventFlow.collect { event ->
+                        when (event) {
+                            is AppConfigViewModel.AppConfigEvent.DataCleared -> {
+                                Toast.makeText(this@AppConfigActivity, "${event.message}. Restarting...", Toast.LENGTH_SHORT).show()
+                                restartApp()
+                            }
+                            is AppConfigViewModel.AppConfigEvent.Error -> {
+                                Toast.makeText(this@AppConfigActivity, "Error: ${event.message}", Toast.LENGTH_LONG).show()
+                            }
+                            is AppConfigViewModel.AppConfigEvent.ConfigurationChanged -> {
+                                Toast.makeText(this@AppConfigActivity, "Configuration saved. Restarting...", Toast.LENGTH_SHORT).show()
+                                restartApp()
+                            }
                         }
-                        is AppConfigViewModel.AppConfigEvent.Error -> {
-                            Toast.makeText(this@AppConfigActivity, "Error: ${event.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+                
+                launch {
+                    viewModel.isEmbeddedServerEnabled.collect { isEnabled ->
+                        if (isEnabled) {
+                            binding.rbEmbedded.isChecked = true
+                        } else {
+                            binding.rbRemote.isChecked = true
                         }
                     }
                 }
@@ -81,14 +107,16 @@ class AppConfigActivity : AppCompatActivity() {
 
     private fun openMainApp() {
         val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+        finish()
+        Runtime.getRuntime().exit(0)
     }
 
     private fun restartApp() {
-        val intent = baseContext.packageManager.getLaunchIntentForPackage(baseContext.packageName)
-        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-        Runtime.getRuntime().exit(0)
+//        val intent = baseContext.packageManager.getLaunchIntentForPackage(baseContext.packageName)
+//        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//        startActivity(intent)
+//        Runtime.getRuntime().exit(0)
     }
 }
