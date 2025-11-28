@@ -1,5 +1,8 @@
 package com.linhphan.lpcore.di
 
+import com.linhphan.lpcore.BuildConfig
+import com.linhphan.lpcore.data.AppConfiguration
+import com.linhphan.lpcore.data.KtorEmbeddedServer
 import com.linhphan.lpcore.data.forecast.remote.ForecastApiService
 import dagger.Module
 import dagger.Provides
@@ -15,9 +18,18 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    fun provideRetrofit(
+        ktorEmbeddedServer: KtorEmbeddedServer,
+        appConfiguration: AppConfiguration
+    ): Retrofit {
+        val baseUrl = if (BuildConfig.DEBUG && appConfiguration.isEmbeddedServerEnabled) {
+            ktorEmbeddedServer.baseUrl
+        } else {
+            "https://api.openweathermap.org/"
+        }
+        
         return Retrofit.Builder()
-            .baseUrl("https://api.openweathermap.org/")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
