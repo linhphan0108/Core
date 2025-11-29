@@ -15,6 +15,7 @@ data class Forecast(
     val tempDay: Double,
     val tempMin: Double,
     val tempMax: Double,
-    val weatherDescription: String,
-    val icon: String
+    val weatherCondition: WeatherCondition,
+    val icon: String,
+    val precipitationProbability: Int
 )
