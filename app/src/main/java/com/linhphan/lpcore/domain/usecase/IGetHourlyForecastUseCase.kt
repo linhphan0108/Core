@@ -1,9 +1,9 @@
 package com.linhphan.lpcore.domain.usecase
 
 import com.linhphan.lpcore.domain.base.ISuspendUseCase
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 
-interface IGetHourlyForecastUseCase : ISuspendUseCase<IGetHourlyForecastUseCase.Params, Forecasts> {
+interface IGetHourlyForecastUseCase : ISuspendUseCase<IGetHourlyForecastUseCase.Params, HourlyForecasts> {
     data class Params(
         val lat: Double,
         val lon: Double,

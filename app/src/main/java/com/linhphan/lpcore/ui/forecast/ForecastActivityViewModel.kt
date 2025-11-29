@@ -8,7 +8,7 @@ import com.linhphan.lpcore.ui.base.activity.BaseActivityViewModel
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
-import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,8 +30,8 @@ class ForecastActivityViewModel @Inject constructor(
     private val forecastUiMapper: ForecastUiMapper
 ) : BaseActivityViewModel() {
 
-    private val _uiState = MutableStateFlow(ForecastUiModel())
-    val uiState: StateFlow<ForecastUiModel> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(HourlyForecastUiModel())
+    val uiState: StateFlow<HourlyForecastUiModel> = _uiState.asStateFlow()
 
     private val _isHourlyForecastLoading = MutableStateFlow(false)
     val isHourlyForecastLoading: StateFlow<Boolean> = _isHourlyForecastLoading.asStateFlow()

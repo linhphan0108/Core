@@ -2,7 +2,7 @@ package com.linhphan.lpcore.domain.usecase.impl
 
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import io.mockk.MockKAnnotations
@@ -38,8 +38,8 @@ class GetForecastUseCaseTest {
         val lat = 10.0
         val lon = 20.0
         val params = IGetForecastUseCase.Params(lat, lon)
-        val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        val expectedResult = Result.Success(forecasts)
+        val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
+        val expectedResult = Result.Success(hourlyForecasts)
         
         every { repository.getForecast(lat, lon) } returns flowOf(expectedResult)
 

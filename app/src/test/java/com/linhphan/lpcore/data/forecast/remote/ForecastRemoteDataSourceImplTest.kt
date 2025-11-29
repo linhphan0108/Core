@@ -1,10 +1,10 @@
 package com.linhphan.lpcore.data.forecast.remote
 
 import com.linhphan.lpcore.data.forecast.ForecastMapper
-import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
+import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -40,20 +40,20 @@ class ForecastRemoteDataSourceImplTest {
         val startDate = "2024-01-01"
         val endDate = "2024-01-02"
         
-        val responseDto = OpenMeteoResponseDto(10.0, 20.0, null)
-        val domainForecasts = Forecasts(CityInfo("Unknown Location", "Unknown"), emptyList())
+        val responseDto = HourlyForecastResponseDto(10.0, 20.0, null)
+        val domainHourlyForecasts = HourlyForecasts(CityInfo("Unknown Location", "Unknown"), emptyList())
 
         coEvery { 
             apiService.getHourlyForecast(lat, lon, timezone = timezone, startDate = startDate, endDate = endDate) 
         } returns responseDto
-        every { mapper.mapToDomain(responseDto) } returns domainForecasts
+        every { mapper.mapToDomain(responseDto) } returns domainHourlyForecasts
 
         // When
         val result = dataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
 
         // Then
         assertTrue(result is Result.Success)
-        assertEquals(domainForecasts, (result as Result.Success).data)
+        assertEquals(domainHourlyForecasts, (result as Result.Success).data)
     }
 
     @Test
@@ -82,7 +82,7 @@ class ForecastRemoteDataSourceImplTest {
         val lat = 10.0
         val lon = 20.0
         val timezone = "UTC"
-        val responseDto = OpenMeteoResponseDto(10.0, 20.0, null)
+        val responseDto = HourlyForecastResponseDto(10.0, 20.0, null)
         val exception = RuntimeException("Mapping error")
 
         coEvery { 

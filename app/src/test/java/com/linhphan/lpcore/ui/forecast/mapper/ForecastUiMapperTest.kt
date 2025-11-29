@@ -3,8 +3,8 @@ package com.linhphan.lpcore.ui.forecast.mapper
 import android.content.Context
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecast
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecast
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
@@ -42,7 +42,7 @@ class ForecastUiMapperTest {
     fun `mapToUiModel maps correctly`() {
         // Given
         val cityUiModel = CityUiModel("Hanoi", "Vietnam", CoordinateUiModel(10.0, 20.0))
-        val forecast = Forecast(
+        val hourlyForecast = HourlyForecast(
             date = 1704085200L, // 2024-01-01 05:00:00 UTC
             tempDay = 25.0,
             tempMin = 20.0,
@@ -51,9 +51,9 @@ class ForecastUiMapperTest {
             icon = "icon",
             precipitationProbability = 10
         )
-        val forecasts = Forecasts(
+        val hourlyForecasts = HourlyForecasts(
             CityInfo("Hanoi", "Vietnam"),
-            listOf(forecast)
+            listOf(hourlyForecast)
         )
 
         every { context.getString(R.string.city_country_format, "Hanoi", "Vietnam") } returns "Hanoi, Vietnam"
@@ -61,7 +61,7 @@ class ForecastUiMapperTest {
         every { context.getString(R.string.precipitation_probability, 10) } returns "10%"
 
         // When
-        val result = mapper.mapToUiModel(cityUiModel, forecasts)
+        val result = mapper.mapToUiModel(cityUiModel, hourlyForecasts)
 
         // Then
         assertEquals("Hanoi, Vietnam", result.cityTitle)

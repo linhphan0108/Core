@@ -1,9 +1,9 @@
 package com.linhphan.lpcore.data.forecast
 
-import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
+import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecast
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecast
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -11,7 +11,7 @@ import java.util.TimeZone
 import javax.inject.Inject
 
 class ForecastMapper @Inject constructor() {
-    fun mapToDomain(response: OpenMeteoResponseDto): Forecasts {
+    fun mapToDomain(response: HourlyForecastResponseDto): HourlyForecasts {
         val city = CityInfo(
             name = "Unknown Location", // Open-Meteo doesn't return city name
             country = "Unknown"
@@ -27,7 +27,7 @@ class ForecastMapper @Inject constructor() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US)
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
-        val forecastList = times.mapIndexedNotNull { index, timeStr ->
+        val hourlyForecastList = times.mapIndexedNotNull { index, timeStr ->
             if (index < temperatures.size && index < weatherCodes.size) {
                 // Parse time string "2024-01-01T00:00" to Unix timestamp
                 val dateLong = try {
@@ -41,7 +41,7 @@ class ForecastMapper @Inject constructor() {
                 val code = weatherCodes[index]
                 val precipitationProbability = if (index < precipitationProbabilities.size) precipitationProbabilities[index] else 0
                 
-                Forecast(
+                HourlyForecast(
                     date = dateLong,
                     tempDay = temp,
                     tempMin = temp, // Hourly data doesn't have min/max range, just instantaneous
@@ -55,6 +55,6 @@ class ForecastMapper @Inject constructor() {
             }
         }
         
-        return Forecasts(city, forecastList)
+        return HourlyForecasts(city, hourlyForecastList)
     }
 }

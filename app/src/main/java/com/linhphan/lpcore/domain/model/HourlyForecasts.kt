@@ -1,8 +1,8 @@
 package com.linhphan.lpcore.domain.model
 
-data class Forecasts(
+data class HourlyForecasts(
     val city: CityInfo,
-    val forecasts: List<Forecast>
+    val hourlyForecasts: List<HourlyForecast>
 )
 
 data class CityInfo(
@@ -10,7 +10,7 @@ data class CityInfo(
     val country: String
 )
 
-data class Forecast(
+data class HourlyForecast(
     val date: Long,
     val tempDay: Double,
     val tempMin: Double,

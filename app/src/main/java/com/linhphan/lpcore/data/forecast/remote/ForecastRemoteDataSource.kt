@@ -2,11 +2,11 @@ package com.linhphan.lpcore.data.forecast.remote
 
 import com.linhphan.lpcore.data.forecast.ForecastMapper
 import com.linhphan.lpcore.domain.base.Result
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import javax.inject.Inject
 
 interface ForecastRemoteDataSource {
-    suspend fun getHourlyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<Forecasts>
+    suspend fun getHourlyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<HourlyForecasts>
 }
 
 class ForecastRemoteDataSourceImpl @Inject constructor(
@@ -14,7 +14,7 @@ class ForecastRemoteDataSourceImpl @Inject constructor(
     private val mapper: ForecastMapper
 ) : ForecastRemoteDataSource {
 
-    override suspend fun getHourlyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<Forecasts> {
+    override suspend fun getHourlyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<HourlyForecasts> {
         return try {
             // Open-Meteo does not require an API key
             val response = apiService.getHourlyForecast(
