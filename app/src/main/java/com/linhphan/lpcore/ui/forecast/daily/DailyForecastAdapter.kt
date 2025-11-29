@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.linhphan.lpcore.databinding.ItemDailyForecastBinding
 import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 
-class DailyForecastAdapter : ListAdapter<DailyForecastUiItem, DailyForecastAdapter.DailyForecastViewHolder>(DailyForecastDiffCallback()) {
+class DailyForecastAdapter(
+    private val onItemClicked: (DailyForecastUiItem) -> Unit = {}
+) : ListAdapter<DailyForecastUiItem, DailyForecastAdapter.DailyForecastViewHolder>(DailyForecastDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyForecastViewHolder {
         val binding = ItemDailyForecastBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -31,6 +33,7 @@ class DailyForecastAdapter : ListAdapter<DailyForecastUiItem, DailyForecastAdapt
             binding.root.isSelected = item.isSelected
             binding.root.setOnClickListener {
                 updateSelection(adapterPosition)
+                onItemClicked(item)
             }
         }
     }

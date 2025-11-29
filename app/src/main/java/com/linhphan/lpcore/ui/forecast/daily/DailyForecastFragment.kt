@@ -7,10 +7,13 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.FragmentDailyForecastBinding
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
@@ -25,8 +28,10 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
 
     override val viewModel: DailyForecastFragViewModel by viewModels()
 
+    private val sharedViewModel: DailyForecastFragViewModel by activityViewModels()
+
     private val forecastAdapter = ForecastAdapter()
-    private val dailyForecastAdapter = DailyForecastAdapter()
+    private lateinit var dailyForecastAdapter: DailyForecastAdapter
 
     override fun getViewBinding(
         inflater: LayoutInflater,
@@ -45,6 +50,11 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
     }
 
     override fun setupViews() {
+        // Initialize adapter with click listener
+        dailyForecastAdapter = DailyForecastAdapter {
+            onDailyForecastItemClicked()
+        }
+
         binding.rvForecast.adapter = forecastAdapter
         binding.rvDailyForecast.adapter = dailyForecastAdapter
 
@@ -62,12 +72,12 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         binding.etCityName.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.etCityName.showDropDown()
-                Timber.Forest.i("etCityName focused")
+                Timber.i("etCityName focused")
             }
         }
         binding.etCityName.setOnClickListener {
             binding.etCityName.showDropDown()
-            Timber.Forest.i("etCityName clicked")
+            Timber.i("etCityName clicked")
         }
     }
 
@@ -183,7 +193,36 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         }
     }
 
+    private fun onDailyForecastItemClicked() {
+        if (isLargeScreen()) {
+            // For large screens, the details fragment should already be visible side-by-side
+            // or we might want to update it if we were passing specific data.
+            // Since both fragments observe the same ViewModel, updating the ViewModel (if we were)
+            // would automatically update the details fragment.
+            // In this case, we are just showing the list, so no specific action is strictly needed
+            // unless we want to highlight the selected item which is handled by the adapter.
+
+            // However, if the details container is empty, we should populate it.
+             val detailsFragment = parentFragmentManager.findFragmentById(R.id.fragment_container_details)
+             if (detailsFragment == null) {
+                 parentFragmentManager.commit {
+                     replace(R.id.fragment_container_details, DailyForecastDetailsFragment())
+                 }
+             }
+        } else {
+            // On smaller screens, navigate to the details fragment
+            parentFragmentManager.commit {
+                replace(R.id.fragment_container, DailyForecastDetailsFragment())
+                addToBackStack(null)
+            }
+        }
+    }
+    
+    private fun isLargeScreen(): Boolean {
+        return requireActivity().findViewById<View>(R.id.fragment_container_details) != null
+    }
+
     private fun getFormatedCityCountry(cityUiModel: CityUiModel): String {
-        return getString(com.linhphan.lpcore.R.string.city_country_format, cityUiModel.name, cityUiModel.country)
+        return getString(R.string.city_country_format, cityUiModel.name, cityUiModel.country)
     }
 }
