@@ -16,9 +16,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -80,15 +81,25 @@ class ForecastActivityViewModel @Inject constructor(
     }
 
     private fun calculateStartAndEndDate(timezone: String): Pair<String, String> {
-        val zoneId = try {
-            ZoneId.of(timezone)
-        } catch (e: Exception) {
-            ZoneId.systemDefault()
+        var timeZone = TimeZone.getTimeZone(timezone)
+        // TimeZone.getTimeZone returns "GMT" if it doesn't understand the ID.
+        // If the user actually requested "GMT" or "UTC", that's fine.
+        // Otherwise, if we got "GMT" but didn't ask for it, assume it's invalid and fallback to system default.
+        if (timeZone.id == "GMT" && 
+            !timezone.equals("GMT", ignoreCase = true) && 
+            !timezone.equals("UTC", ignoreCase = true)) {
+            timeZone = TimeZone.getDefault()
         }
-        val now = LocalDate.now(zoneId)
-        val tomorrow = now.plusDays(1)
-        val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-        return now.format(formatter) to tomorrow.format(formatter)
+        val calendar = Calendar.getInstance(timeZone)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        dateFormat.timeZone = timeZone
+
+        val startDate = dateFormat.format(calendar.time)
+        
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        val endDate = dateFormat.format(calendar.time)
+
+        return startDate to endDate
     }
 }
