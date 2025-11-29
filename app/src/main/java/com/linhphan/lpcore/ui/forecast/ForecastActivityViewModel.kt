@@ -11,6 +11,7 @@ import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import com.linhphan.lpcore.ui.forecast.model.CurrentForecastUiModel
 import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
+import com.linhphan.lpcore.ui.forecast.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,17 +34,13 @@ class ForecastActivityViewModel @Inject constructor(
     private val forecastUiMapper: ForecastUiMapper
 ) : BaseActivityViewModel() {
 
-    private val _hourlyForecastUiState: MutableStateFlow<List<HourlyForecastUiItem>?> =
-        MutableStateFlow(null)
-    val hourlyForecastUiState: StateFlow<List<HourlyForecastUiItem>?> = _hourlyForecastUiState.asStateFlow()
+    private val _hourlyForecastUiState: MutableStateFlow<UiState<List<HourlyForecastUiItem>>> = MutableStateFlow(UiState.Empty)
+    val hourlyForecastUiState: StateFlow<UiState<List<HourlyForecastUiItem>>> = _hourlyForecastUiState.asStateFlow()
 
-    private val _currentForecastUiState: MutableStateFlow<CurrentForecastUiModel?> =
-        MutableStateFlow(null)
-    val currentForecastUiState: StateFlow<CurrentForecastUiModel?> =
+    private val _currentForecastUiState: MutableStateFlow<UiState<CurrentForecastUiModel>> =
+        MutableStateFlow(UiState.Empty)
+    val currentForecastUiState: StateFlow<UiState<CurrentForecastUiModel>> =
         _currentForecastUiState.asStateFlow()
-
-    private val _isHourlyForecastLoading = MutableStateFlow(false)
-    val isHourlyForecastLoading: StateFlow<Boolean> = _isHourlyForecastLoading.asStateFlow()
 
     private var fetchForecastJob: Job? = null
 
@@ -57,16 +54,17 @@ class ForecastActivityViewModel @Inject constructor(
 
     fun fetchCurrentForecast(lat: Double, lon: Double, timezone: String) {
         viewModelScope.launch {
+            _currentForecastUiState.value = UiState.Loading
             val result =
                 getCurrentForecastUseCase(IGetCurrentForecastUseCase.Params(lat, lon, timezone))
             when (result) {
                 is Result.Success -> {
-                    _currentForecastUiState.value =
-                        forecastUiMapper.mapToUiModel(domainModel = result.data)
+                    val currentForecastUiModel = forecastUiMapper.mapToUiModel(domainModel = result.data)
+                    _currentForecastUiState.value = UiState.Success(currentForecastUiModel)
                 }
 
                 is Result.Error -> {
-                    // Log error, maybe show snackbar but don't clear existing data
+                    _currentForecastUiState.value = UiState.Error(result.exception.message)
                     Timber.e(result.exception, "Error fetching current forecast")
                 }
             }
@@ -76,15 +74,14 @@ class ForecastActivityViewModel @Inject constructor(
     fun fetchForecast(lat: Double, lon: Double) {
         fetchForecastJob?.cancel()
         fetchForecastJob = viewModelScope.launch {
-            _isHourlyForecastLoading.value = true
+            _hourlyForecastUiState.value = UiState.Loading
             getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
-                _isHourlyForecastLoading.value = false
                 when (result) {
                     is Result.Success -> {
                         // This use case returns HourlyForecasts but from local DB (flow)
                         // We might need to adjust mapper to support merging or just update hourly part
-                        _hourlyForecastUiState.value =
-                            forecastUiMapper.mapToUiModel(domainModel = result.data)
+//                        _hourlyForecastUiState.value =
+//                            forecastUiMapper.mapToUiModel(domainModel = result.data)
                     }
 
                     is Result.Error -> {
@@ -102,7 +99,7 @@ class ForecastActivityViewModel @Inject constructor(
         val (startDate, endDate) = calculateStartAndEndDate(timezone)
 
         viewModelScope.launch {
-            _isHourlyForecastLoading.value = true
+            _hourlyForecastUiState.value = UiState.Loading
             val result = getHourlyForecastUseCase(
                 IGetHourlyForecastUseCase.Params(
                     lat,
@@ -112,17 +109,18 @@ class ForecastActivityViewModel @Inject constructor(
                     endDate
                 )
             )
-            _isHourlyForecastLoading.value = false
             when (result) {
                 is Result.Success -> {
-                    _hourlyForecastUiState.value =
-                        forecastUiMapper.mapToUiModel(domainModel = result.data)
+                    val hourlyForecastUiItemList = forecastUiMapper.mapToUiModel(domainModel = result.data)
+                    if (hourlyForecastUiItemList.isNotEmpty()) {
+                        _hourlyForecastUiState.value = UiState.Success(hourlyForecastUiItemList)
+                    } else {
+                        _hourlyForecastUiState.value = UiState.Empty
+                    }
                 }
 
                 is Result.Error -> {
-//                    _hourlyForecastUiState.value = _hourlyForecastUiState.value.copy(
-//                        errorMessage = result.exception.message
-//                    )
+                    _hourlyForecastUiState.value = UiState.Error(result.exception.message)
                     Timber.e(result.exception, "Error fetching forecast for lat=$lat, lon=$lon")
                 }
             }
