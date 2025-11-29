@@ -6,4 +6,6 @@
     <string name="unknown">Unknown</string>
     <string name="loading">Loading</string>
     <string name="hourly_forecast">Hourly forecast</string>
+    <string name="feels_like">Feels like %1$s</string>
+    <string name="high_low">High %1$s • Low %2$s</string>
 </resources>

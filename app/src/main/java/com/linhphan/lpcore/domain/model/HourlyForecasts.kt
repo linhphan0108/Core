@@ -15,6 +15,7 @@ data class HourlyForecast(
     val tempDay: Double,
     val tempMin: Double,
     val tempMax: Double,
+    val apparentTemperature: Double,
     val weatherCondition: WeatherCondition,
     val icon: String,
     val precipitationProbability: Int

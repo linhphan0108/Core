@@ -12,6 +12,7 @@ data class ForecastEntity(
     val tempDay: Double,
     val tempMin: Double,
     val tempMax: Double,
+    val apparentTemperature: Double,
     val weatherCode: Int,
     val icon: String,
     val precipitationProbability: Int

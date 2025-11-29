@@ -1,6 +1,5 @@
 package com.linhphan.lpcore.domain.usecase.impl
 
-import com.linhphan.lpcore.data.forecast.ForecastMapper
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CurrentForecast
 import com.linhphan.lpcore.domain.repository.ForecastRepository

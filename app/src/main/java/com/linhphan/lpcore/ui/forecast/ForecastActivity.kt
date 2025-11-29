@@ -8,13 +8,13 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.snackbar.Snackbar
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -76,7 +76,7 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isHourlyForecastLoading.collect {
-                    binding.progressBarDailyForecast.isVisible = it
+                    binding.progressBar.isVisible = it
                     binding.rvForecast.isVisible = !it
                 }
             }
@@ -84,11 +84,20 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    if (state.errorMessage != null) {
-                        Snackbar.make(binding.root, state.errorMessage, Snackbar.LENGTH_LONG).show()
-                    }
-                    forecastAdapter.updateData(state.items)
+                viewModel.hourlyForecastUiState.filterNotNull().collect { hourlyForecastsUi ->
+                    hourlyForecastsUi.let { forecastAdapter.updateData(it) }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.currentForecastUiState.filterNotNull().collect { currentForecastUiModel ->
+                    binding.tvCurrentTemp.text = currentForecastUiModel.temp
+                    binding.tvCurrentWeatherCondition.text = currentForecastUiModel.weatherCondition
+                    binding.tvFeelsLike.text = currentForecastUiModel.feelsLike
+                    binding.tvHighLow.text = currentForecastUiModel.highLow
+                    binding.ivCurrentWeatherIcon.setImageResource(currentForecastUiModel.iconRes)
                 }
             }
         }

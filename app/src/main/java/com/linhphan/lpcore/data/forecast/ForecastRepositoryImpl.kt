@@ -35,16 +35,6 @@ class ForecastRepositoryImpl @Inject constructor(
             .flowOn(ioDispatcher)
     }
 
-    override suspend fun getHourlyForecast(
-        lat: Double,
-        lon: Double,
-        timezone: String,
-        startDate: String?,
-        endDate: String?,
-    ): Result<HourlyForecasts> {
-        return remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
-    }
-
     override suspend fun getCurrentForecast(
         lat: Double,
         lon: Double,
@@ -53,5 +43,15 @@ class ForecastRepositoryImpl @Inject constructor(
         endDate: String?
     ): Result<CurrentForecast> {
         return remoteDataSource.getCurrentForecast(lat, lon, timezone)
+    }
+
+    override suspend fun getHourlyForecast(
+        lat: Double,
+        lon: Double,
+        timezone: String,
+        startDate: String?,
+        endDate: String?,
+    ): Result<HourlyForecasts> {
+        return remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
     }
 }

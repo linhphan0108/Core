@@ -71,7 +71,7 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(uiModel, viewModel.uiState.value)
+        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
     }
 
     @Test
@@ -88,7 +88,7 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(errorMessage, viewModel.uiState.value.errorMessage)
+        assertEquals(errorMessage, viewModel.hourlyForecastUiState.value.errorMessage)
     }
     
     @Test
@@ -108,7 +108,7 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(uiModel, viewModel.uiState.value)
+        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
     }
     
     @Test
@@ -126,7 +126,7 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(errorMessage, viewModel.uiState.value.errorMessage)
+        assertEquals(errorMessage, viewModel.hourlyForecastUiState.value.errorMessage)
     }
 
     @Test
@@ -148,6 +148,6 @@ class ForecastActivityViewModelTest {
 
         // Then
         coVerify { getHourlyForecastUseCase(any()) }
-        assertEquals(uiModel, viewModel.uiState.value)
+        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
     }
 }

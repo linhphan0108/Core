@@ -2,22 +2,17 @@ package com.linhphan.lpcore.data.forecast.model
 
 import com.google.gson.annotations.SerializedName
 
-open class BaseForecastResponseDto(
-    @SerializedName("latitude") open val latitude: Double?,
-    @SerializedName("longitude") open val longitude: Double?
+data class HourlyForecastResponseDto(
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("hourly") val hourly: HourlyForecastDto?
 )
 
-data class HourlyForecastResponseDto(
-    @SerializedName("latitude") override val latitude: Double?,
-    @SerializedName("longitude") override val longitude: Double?,
-    @SerializedName("hourly") val hourly: HourlyForecastDto?
-) : BaseForecastResponseDto(latitude, longitude)
-
 data class CurrentForecastResponseDto(
-    @SerializedName("latitude") override val latitude: Double?,
-    @SerializedName("longitude") override val longitude: Double?,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
     @SerializedName("current") val currentForecasts: CurrentForecastDto?
-) : BaseForecastResponseDto(latitude, longitude)
+)
 
 data class HourlyForecastDto(
     @SerializedName("time") val time: List<String>?,

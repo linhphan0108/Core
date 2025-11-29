@@ -33,6 +33,7 @@ class ForecastLocalDataSourceImpl @Inject constructor(
                         tempDay = it.tempDay,
                         tempMin = it.tempMin,
                         tempMax = it.tempMax,
+                        apparentTemperature = it.apparentTemperature,
                         weatherCondition = WeatherCondition.fromCode(it.weatherCode),
                         icon = it.icon,
                         precipitationProbability = it.precipitationProbability
@@ -55,6 +56,7 @@ class ForecastLocalDataSourceImpl @Inject constructor(
                         tempDay = forecast.tempDay,
                         tempMin = forecast.tempMin,
                         tempMax = forecast.tempMax,
+                        apparentTemperature = forecast.apparentTemperature,
                         weatherCode = forecast.weatherCondition.code,
                         icon = forecast.icon,
                         precipitationProbability = forecast.precipitationProbability

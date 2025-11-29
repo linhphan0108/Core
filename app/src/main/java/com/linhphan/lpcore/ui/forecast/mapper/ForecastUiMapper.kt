@@ -2,12 +2,11 @@ package com.linhphan.lpcore.ui.forecast.mapper
 
 import android.content.Context
 import com.linhphan.lpcore.R
-import com.linhphan.lpcore.domain.model.HourlyForecast
+import com.linhphan.lpcore.domain.model.CurrentForecast
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
-import com.linhphan.lpcore.ui.forecast.model.CityUiModel
-import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
-import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.CurrentForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,35 +19,54 @@ class ForecastUiMapper @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
 
-    fun mapToUiModel(cityUiModel: CityUiModel, domainModel: HourlyForecasts): HourlyForecastUiModel {
-        return HourlyForecastUiModel(
-            cityTitle = context.getString(
-                R.string.city_country_format,
-                cityUiModel.name,
-                cityUiModel.country,
-            ),
-            items = domainModel.hourlyForecasts.map { mapItem(it) }
-        )
-    }
-
-    private fun mapItem(domainItem: HourlyForecast): ForecastUiItem {
+    fun mapToUiModel(domainModel: HourlyForecasts): List<HourlyForecastUiItem> {
         val hourFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         hourFormat.timeZone = TimeZone.getDefault()
+        return domainModel.hourlyForecasts.map { domainItem ->
+            HourlyForecastUiItem(
+                hour = hourFormat.format(Date(domainItem.date * 1000)),
+                description = domainItem.weatherCondition.description.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                },
+                tempMax = context.getString(
+                    R.string.temperature_celsius,
+                    domainItem.tempMax.roundToInt()
+                ),
+                precipitationProbability = context.getString(
+                    R.string.precipitation_probability,
+                    domainItem.precipitationProbability
+                ),
+                iconRes = getWeatherIcon(domainItem.weatherCondition)
+            )
+        }
+    }
 
-        return ForecastUiItem(
-            hour = hourFormat.format(Date(domainItem.date * 1000)),
-            description = domainItem.weatherCondition.description.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-            },
-            tempMax = context.getString(
+    fun mapToUiModel(domainModel: CurrentForecast): CurrentForecastUiModel {
+        return CurrentForecastUiModel(
+            temp = context.getString(
                 R.string.temperature_celsius,
-                domainItem.tempMax.roundToInt()
+                domainModel.current.tempDay.roundToInt()
             ),
-            precipitationProbability = context.getString(
-                R.string.precipitation_probability,
-                domainItem.precipitationProbability
+            weatherCondition = domainModel.current.weatherCondition.description,
+            feelsLike = context.getString(
+                R.string.feels_like,
+                context.getString(
+                    R.string.temperature_celsius,
+                    domainModel.current.apparentTemperature.roundToInt()
+                )
             ),
-            iconRes = getWeatherIcon(domainItem.weatherCondition)
+            highLow = context.getString(
+                R.string.high_low,
+                context.getString(
+                    R.string.temperature_celsius,
+                    domainModel.current.tempMax.roundToInt()
+                ),
+                context.getString(
+                    R.string.temperature_celsius,
+                    domainModel.current.tempMin.roundToInt()
+                )
+            ),
+            iconRes = getWeatherIcon(domainModel.current.weatherCondition)
         )
     }
 
@@ -57,9 +75,11 @@ class ForecastUiMapper @Inject constructor(
             WeatherCondition.CLEAR_SKY -> R.drawable.ic_weather_clear_sky
             WeatherCondition.MAINLY_CLEAR,
             WeatherCondition.PARTLY_CLOUDY -> R.drawable.ic_weather_partly_cloudy
+
             WeatherCondition.OVERCAST,
             WeatherCondition.FOG,
             WeatherCondition.DEPOSITING_RIME_FOG -> R.drawable.ic_weather_fog
+
             WeatherCondition.DRIZZLE_LIGHT,
             WeatherCondition.DRIZZLE_MODERATE,
             WeatherCondition.DRIZZLE_DENSE,
@@ -73,15 +93,18 @@ class ForecastUiMapper @Inject constructor(
             WeatherCondition.RAIN_SHOWERS_SLIGHT,
             WeatherCondition.RAIN_SHOWERS_MODERATE,
             WeatherCondition.RAIN_SHOWERS_VIOLENT -> R.drawable.ic_weather_rain
+
             WeatherCondition.SNOW_FALL_SLIGHT,
             WeatherCondition.SNOW_FALL_MODERATE,
             WeatherCondition.SNOW_FALL_HEAVY,
             WeatherCondition.SNOW_GRAINS,
             WeatherCondition.SNOW_SHOWERS_SLIGHT,
             WeatherCondition.SNOW_SHOWERS_HEAVY -> R.drawable.ic_weather_snow
+
             WeatherCondition.THUNDERSTORM_SLIGHT_MODERATE,
             WeatherCondition.THUNDERSTORM_HAIL_SLIGHT,
             WeatherCondition.THUNDERSTORM_HAIL_HEAVY -> R.drawable.ic_weather_thunderstorm
+
             WeatherCondition.UNKNOWN -> R.drawable.ic_weather_clear_sky // Default or placeholder
         }
     }
