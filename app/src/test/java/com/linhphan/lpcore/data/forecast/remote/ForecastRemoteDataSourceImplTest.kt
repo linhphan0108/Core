@@ -43,7 +43,7 @@ class ForecastRemoteDataSourceImplTest {
         every { mapper.mapToDomain(response) } returns expectedForecasts
 
         // When
-        val result = dataSource.getForecast(lat, lon)
+        val result = dataSource.getHourlyForecast(lat, lon)
 
         // Then
         assertTrue(result is Result.Success)
@@ -60,7 +60,7 @@ class ForecastRemoteDataSourceImplTest {
         coEvery { apiService.getThreeHourIntervalForecast(lat = lat, lon = lon, apiKey = any()) } throws exception
 
         // When
-        val result = dataSource.getForecast(lat, lon)
+        val result = dataSource.getHourlyForecast(lat, lon)
 
         // Then
         assertTrue(result is Result.Error)

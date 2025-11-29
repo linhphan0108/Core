@@ -70,7 +70,7 @@ class ForecastRepositoryImplTest {
     fun `refreshForecast saves to local when remote success`() = runTest(testDispatcher) {
         // Given
         val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        coEvery { remoteDataSource.getForecast(any(), any()) } returns Result.Success(forecasts)
+        coEvery { remoteDataSource.getHourlyForecast(any(), any()) } returns Result.Success(forecasts)
         coEvery { localDataSource.saveForecast(any()) } returns Unit
 
         // When
@@ -85,7 +85,7 @@ class ForecastRepositoryImplTest {
     fun `refreshForecast returns error when remote fails`() = runTest(testDispatcher) {
         // Given
         val exception = Exception("Remote Error")
-        coEvery { remoteDataSource.getForecast(any(), any()) } returns Result.Error(exception)
+        coEvery { remoteDataSource.getHourlyForecast(any(), any()) } returns Result.Error(exception)
 
         // When
         val result = repository.refreshForecast(0.0, 0.0)

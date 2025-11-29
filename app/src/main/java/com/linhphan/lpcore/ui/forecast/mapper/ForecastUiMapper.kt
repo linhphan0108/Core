@@ -4,6 +4,7 @@ import android.content.Context
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,12 +19,12 @@ class ForecastUiMapper @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
 
-    fun mapToUiModel(domainModel: Forecasts): ForecastUiModel {
+    fun mapToUiModel(cityUiModel: CityUiModel, domainModel: Forecasts): ForecastUiModel {
         return ForecastUiModel(
             cityTitle = context.getString(
                 R.string.city_country_format,
-                domainModel.city.name,
-                domainModel.city.country
+                cityUiModel.name,
+                cityUiModel.country,
             ),
             items = domainModel.forecasts.map { mapItem(it) }
         )

@@ -31,8 +31,9 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             // Set a default city (e.g., the first one in your list)
-            val defaultCity = cities.random()
-            viewModel.coordinateUiModel = defaultCity.coordinate
+            val city = cities.random()
+            viewModel.cityUiModel = city
+            binding.etCityName.setText(city.name)
         }
     }
 
@@ -44,8 +45,7 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
         binding.etCityName.setAdapter(adapter)
         binding.etCityName.setOnItemClickListener { parent, _, position, _ ->
-            val city = parent.getItemAtPosition(position) as CityUiModel
-            viewModel.coordinateUiModel = city.coordinate
+            viewModel.cityUiModel = parent.getItemAtPosition(position) as CityUiModel
             // Clear focus to hide keyboard if needed
             binding.etCityName.clearFocus()
         }

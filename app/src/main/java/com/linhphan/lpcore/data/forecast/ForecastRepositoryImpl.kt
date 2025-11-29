@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -35,19 +34,13 @@ class ForecastRepositoryImpl @Inject constructor(
             .flowOn(ioDispatcher)
     }
 
-    override suspend fun refreshForecast(lat: Double, lon: Double): Result<Unit> = withContext(ioDispatcher) {
-        try {
-            when (val remoteResult = remoteDataSource.getForecast(lat, lon)) {
-                is Result.Success -> {
-                    localDataSource.saveForecast(remoteResult.data)
-                    Result.Success(Unit)
-                }
-                is Result.Error -> {
-                    Result.Error(remoteResult.exception)
-                }
-            }
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    override suspend fun getHourlyForecast(
+        lat: Double,
+        lon: Double,
+        timezone: String,
+        startDate: String?,
+        endDate: String?,
+    ): Result<Forecasts> {
+        return remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
     }
 }
