@@ -3,12 +3,14 @@ package com.linhphan.lpcore.data.forecast.remote
 import com.linhphan.lpcore.data.forecast.ForecastMapper
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CurrentForecast
+import com.linhphan.lpcore.domain.model.DailyForecasts
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import javax.inject.Inject
 
 interface ForecastRemoteDataSource {
     suspend fun getCurrentForecast(lat: Double, lon: Double, timezone: String): Result<CurrentForecast>
     suspend fun getHourlyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<HourlyForecasts>
+    suspend fun getDailyForecast(lat: Double, lon: Double, timezone: String, startDate: String?, endDate: String?): Result<DailyForecasts>
 }
 
 class ForecastRemoteDataSourceImpl @Inject constructor(
@@ -40,6 +42,28 @@ class ForecastRemoteDataSourceImpl @Inject constructor(
                 timezone = timezone,
                 startDate = startDate,
                 endDate = endDate)
+            val forecast = mapper.mapToDomain(response)
+            Result.Success(forecast)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun getDailyForecast(
+        lat: Double,
+        lon: Double,
+        timezone: String,
+        startDate: String?,
+        endDate: String?
+    ): Result<DailyForecasts> {
+        return try {
+            val response = apiService.getDailyForecast(
+                lat = lat,
+                lon = lon,
+                timezone = timezone,
+                startDate = startDate,
+                endDate = endDate
+            )
             val forecast = mapper.mapToDomain(response)
             Result.Success(forecast)
         } catch (e: Exception) {

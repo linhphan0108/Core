@@ -24,6 +24,7 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
 
     private val viewModel: ForecastActivityViewModel by viewModels()
     private val forecastAdapter = ForecastAdapter()
+    private val dailyForecastAdapter = DailyForecastAdapter()
 
     override fun getViewBinding(): ActivityForecastBinding {
         return ActivityForecastBinding.inflate(LayoutInflater.from(this))
@@ -45,6 +46,8 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.rvForecast.adapter = forecastAdapter
+        binding.rvDailyForecast.adapter = dailyForecastAdapter
+
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
         binding.etCityName.setAdapter(adapter)
         binding.etCityName.setOnItemClickListener { parent, _, position, _ ->
@@ -133,6 +136,38 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
 
                         is UiState.Error -> {
                             binding.hourlyForecastprogressBar.isVisible = false
+                            Toast.makeText(
+                                this@ForecastActivity,
+                                uiState.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.dailyForecastUiState.collect { uiState ->
+                    when (uiState) {
+                        is UiState.Loading -> {
+                            binding.dailyForecastProgressBar.isVisible = true
+                            binding.rvDailyForecast.isVisible = false
+                        }
+
+                        is UiState.Empty -> {
+                            binding.dailyForecastProgressBar.isVisible = false
+                        }
+
+                        is UiState.Success -> {
+                            dailyForecastAdapter.submitList(uiState.data)
+                            binding.dailyForecastProgressBar.isVisible = false
+                            binding.rvDailyForecast.isVisible = true
+                        }
+
+                        is UiState.Error -> {
+                            binding.dailyForecastProgressBar.isVisible = false
                             Toast.makeText(
                                 this@ForecastActivity,
                                 uiState.message,

@@ -1,10 +1,12 @@
 package com.linhphan.lpcore.di
 
 import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
+import com.linhphan.lpcore.domain.usecase.IGetDailyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.impl.GetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.impl.GetCurrentForecastUseCase
+import com.linhphan.lpcore.domain.usecase.impl.GetDailyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.impl.GetHourlyForecastUseCase
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,9 @@ abstract class UseCaseModule {
     abstract fun bindGetHourlyForecastUseCase(
         getHourlyForecastUseCase: GetHourlyForecastUseCase
     ): IGetHourlyForecastUseCase
+
+    @Binds
+    abstract fun bindGetDailyForecastUseCase(
+        getDailyForecastUseCase: GetDailyForecastUseCase
+    ): IGetDailyForecastUseCase
 }
