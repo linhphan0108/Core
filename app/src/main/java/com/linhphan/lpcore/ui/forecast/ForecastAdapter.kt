@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ItemForecastBinding
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
 
@@ -25,17 +26,16 @@ class ForecastAdapter : ListAdapter<ForecastUiItem, ForecastAdapter.ForecastView
 
     class ForecastViewHolder(private val binding: ItemForecastBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ForecastUiItem) {
-            binding.tvDate.text = item.date
-            binding.tvDescription.text = item.description
+            binding.tvHour.text = item.hour
             binding.tvTempMax.text = item.tempMax
-            binding.tvTempMin.text = item.tempMin
+            binding.tvPrecipitation.text = item.precipitationProbability
+            binding.ivWeatherIcon.setImageResource(item.iconRes ?: R.drawable.ic_launcher_foreground)
         }
     }
 
     class ForecastDiffCallback : DiffUtil.ItemCallback<ForecastUiItem>() {
         override fun areItemsTheSame(oldItem: ForecastUiItem, newItem: ForecastUiItem): Boolean {
-            // Assuming date string is unique enough for list diffing, or we could add an ID if available.
-            return oldItem.date == newItem.date
+            return oldItem.hour == newItem.hour
         }
 
         override fun areContentsTheSame(oldItem: ForecastUiItem, newItem: ForecastUiItem): Boolean {

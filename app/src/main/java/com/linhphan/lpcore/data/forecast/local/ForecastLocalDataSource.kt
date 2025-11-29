@@ -3,6 +3,7 @@ package com.linhphan.lpcore.data.forecast.local
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.WeatherCondition
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -32,8 +33,9 @@ class ForecastLocalDataSourceImpl @Inject constructor(
                         tempDay = it.tempDay,
                         tempMin = it.tempMin,
                         tempMax = it.tempMax,
-                        weatherDescription = it.weatherDescription,
-                        icon = it.icon
+                        weatherCondition = WeatherCondition.fromCode(it.weatherCode),
+                        icon = it.icon,
+                        precipitationProbability = it.precipitationProbability
                     )
                 }
                 Forecasts(cityInfo, forecastList)
@@ -53,8 +55,9 @@ class ForecastLocalDataSourceImpl @Inject constructor(
                         tempDay = forecast.tempDay,
                         tempMin = forecast.tempMin,
                         tempMax = forecast.tempMax,
-                        weatherDescription = forecast.weatherDescription,
-                        icon = forecast.icon
+                        weatherCode = forecast.weatherCondition.code,
+                        icon = forecast.icon,
+                        precipitationProbability = forecast.precipitationProbability
                     )
                 }
             forecastDao.insertForecastsWithLimit(entities, NUMBER_OF_FORECASTS_TO_KEEP)

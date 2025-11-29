@@ -5,6 +5,7 @@ import com.linhphan.lpcore.R
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.WeatherCondition
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import io.mockk.MockKAnnotations
@@ -46,8 +47,9 @@ class ForecastUiMapperTest {
             tempDay = 25.0,
             tempMin = 20.0,
             tempMax = 30.0,
-            weatherDescription = "Clear sky",
-            icon = "icon"
+            weatherCondition = WeatherCondition.CLEAR_SKY,
+            icon = "icon",
+            precipitationProbability = 10
         )
         val forecasts = Forecasts(
             CityInfo("Hanoi", "Vietnam"),
@@ -56,7 +58,7 @@ class ForecastUiMapperTest {
 
         every { context.getString(R.string.city_country_format, "Hanoi", "Vietnam") } returns "Hanoi, Vietnam"
         every { context.getString(R.string.temperature_celsius, 30) } returns "30°C"
-        every { context.getString(R.string.temperature_celsius, 20) } returns "20°C"
+        every { context.getString(R.string.precipitation_probability, 10) } returns "10%"
 
         // When
         val result = mapper.mapToUiModel(cityUiModel, forecasts)
@@ -67,11 +69,12 @@ class ForecastUiMapperTest {
         val item = result.items[0]
         
         // 1704085200L is Mon, 01 Jan 2024 05:00:00 UTC
-        // The mapper uses "EEE, dd MMM HH:mm"
-        assertEquals("Mon, 01 Jan 05:00", item.date)
+        // The mapper uses "HH:mm"
+        assertEquals("05:00", item.hour)
         
         assertEquals("Clear sky", item.description)
         assertEquals("30°C", item.tempMax)
-        assertEquals("20°C", item.tempMin)
+        assertEquals("10%", item.precipitationProbability)
+        assertEquals(R.drawable.ic_weather_clear_sky, item.iconRes)
     }
 }

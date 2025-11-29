@@ -2,6 +2,7 @@ package com.linhphan.lpcore.data.forecast
 
 import com.linhphan.lpcore.data.forecast.model.HourlyDto
 import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
+import com.linhphan.lpcore.domain.model.WeatherCondition
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.ZoneId
@@ -25,7 +26,7 @@ class ForecastMapperTest {
                 relativeHumidity2m = null,
                 dewPoint2m = null,
                 apparentTemperature = null,
-                precipitationProbability = null,
+                precipitationProbability = listOf(10),
                 precipitation = null,
                 rain = null,
                 showers = null,
@@ -57,7 +58,8 @@ class ForecastMapperTest {
         assertEquals(25.0, forecast.tempDay, 0.0)
         assertEquals(25.0, forecast.tempMin, 0.0)
         assertEquals(25.0, forecast.tempMax, 0.0)
-        assertEquals("Clear sky", forecast.weatherDescription)
+        assertEquals(WeatherCondition.CLEAR_SKY, forecast.weatherCondition)
+        assertEquals(10, forecast.precipitationProbability)
         assertEquals("", forecast.icon) // Icon mapping is not yet implemented
     }
     

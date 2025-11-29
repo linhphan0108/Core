@@ -7,8 +7,9 @@ data class ForecastUiModel(
 )
 
 data class ForecastUiItem(
-    val date: String,
+    val hour: String,
     val description: String,
     val tempMax: String,
-    val tempMin: String
+    val precipitationProbability: String,
+    val iconRes: Int? = null // Placeholder for icon resource if we mapped it, or we can use description for now
 )

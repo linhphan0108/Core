@@ -3,6 +3,7 @@ package com.linhphan.lpcore.data.forecast.local
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.WeatherCondition
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -53,8 +54,9 @@ class ForecastLocalDataSourceImplTest {
             tempDay = 25.0,
             tempMin = 20.0,
             tempMax = 30.0,
-            weatherDescription = "Sunny",
-            icon = "sunny"
+            weatherCode = 0,
+            icon = "sunny",
+            precipitationProbability = 10
         )
         every { forecastDao.getAllForecasts() } returns flowOf(listOf(entity))
 
@@ -67,7 +69,8 @@ class ForecastLocalDataSourceImplTest {
         
         val forecast = result?.forecasts?.first()
         assertEquals(100L, forecast?.date)
-        assertEquals("Sunny", forecast?.weatherDescription)
+        assertEquals(WeatherCondition.CLEAR_SKY, forecast?.weatherCondition)
+        assertEquals(10, forecast?.precipitationProbability)
     }
 
     @Test
@@ -76,7 +79,7 @@ class ForecastLocalDataSourceImplTest {
         val forecasts = Forecasts(
             CityInfo("Hanoi", "Vietnam"),
             listOf(
-                Forecast(100L, 25.0, 20.0, 30.0, "Sunny", "sunny")
+                Forecast(100L, 25.0, 20.0, 30.0, WeatherCondition.CLEAR_SKY, "sunny", 10)
             )
         )
         
@@ -93,5 +96,7 @@ class ForecastLocalDataSourceImplTest {
         val entity = entities.first()
         assertEquals("Hanoi", entity.cityName)
         assertEquals(100L, entity.date)
+        assertEquals(0, entity.weatherCode)
+        assertEquals(10, entity.precipitationProbability)
     }
 }
