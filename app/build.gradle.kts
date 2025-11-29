@@ -1,3 +1,6 @@
+import com.android.build.api.variant.HasHostTestsBuilder
+import com.android.build.api.variant.HostTestBuilder
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -54,6 +57,31 @@ android {
             excludes += "META-INF/*.kotlin_module"
             excludes += "META-INF/INDEX.LIST"
             excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
+}
+
+androidComponents {
+    beforeVariants { variantBuilder ->
+
+        println("variant: ${variantBuilder.name}")
+
+        // Disable Unit Tests for Release builds
+        if (variantBuilder.buildType == "release") {
+            (variantBuilder as HasHostTestsBuilder).hostTests.get(HostTestBuilder.UNIT_TEST_TYPE)?.enable = false
+        }
+
+        // Example: Disable Android Tests (Instrumentation) for Release builds
+        if (variantBuilder.buildType == "release") {
+            variantBuilder.enableAndroidTest = false
+        }
+    }
+}
+
+tasks.register("listVariants") {
+    doLast {
+        android.applicationVariants.all {
+            println("Variant: ${name}")
         }
     }
 }
