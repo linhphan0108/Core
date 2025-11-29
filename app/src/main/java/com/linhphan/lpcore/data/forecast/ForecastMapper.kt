@@ -4,9 +4,9 @@ import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecast
 import com.linhphan.lpcore.domain.model.Forecasts
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 class ForecastMapper @Inject constructor() {
@@ -21,17 +21,16 @@ class ForecastMapper @Inject constructor() {
         val temperatures = hourly?.temperature2m ?: emptyList()
         val weatherCodes = hourly?.weatherCode ?: emptyList()
 
+        // Use SimpleDateFormat for API < 26 compatibility
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
         val forecastList = times.mapIndexedNotNull { index, timeStr ->
             if (index < temperatures.size && index < weatherCodes.size) {
-                // Parse time string "2024-01-01T00:00" to Unix timestamp if needed or just keep date
-                // The domain model expects 'date: Long' (Unix timestamp?)
-                // Previous implementation mapped 'dt' (Unix UTC) to 'date'
-                
-                // OpenMeteo returns ISO8601 "yyyy-MM-dd'T'HH:mm"
+                // Parse time string "2024-01-01T00:00" to Unix timestamp
                 val dateLong = try {
-                    // Assuming UTC or converting simple ISO to Epoch Second
-                    // OpenMeteo defaults to GMT/UTC if not specified
-                    java.time.LocalDateTime.parse(timeStr).atZone(ZoneId.of("UTC")).toEpochSecond()
+                    val date = dateFormat.parse(timeStr)
+                    (date?.time ?: 0L) / 1000 // Convert milliseconds to seconds
                 } catch (e: Exception) {
                     0L
                 }
