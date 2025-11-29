@@ -18,7 +18,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -60,7 +59,7 @@ object NetworkModule {
         val baseUrl = if (BuildConfig.DEBUG && appConfiguration.isEmbeddedServerEnabled) {
             ktorEmbeddedServer.baseUrl
         } else {
-            "https://api.openweathermap.org/"
+            "https://api.open-meteo.com/"
         }
 
         return Retrofit.Builder()

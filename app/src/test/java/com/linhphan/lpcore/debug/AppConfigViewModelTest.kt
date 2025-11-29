@@ -152,4 +152,42 @@ class AppConfigViewModelTest {
         
         job.cancel()
     }
+
+    @Test
+    fun `clearAppData clears all data`() = runTest(testDispatcher) {
+        // Given
+        val rootDir = tempFolder.newFolder("data_all")
+        val cacheDir = File(rootDir, "cache").apply { mkdirs() }
+        val sharedPrefsDir = File(rootDir, "shared_prefs").apply { mkdirs() }
+        val dbDir = File(rootDir, "databases").apply { mkdirs() }
+        
+        // Create dummy files to verify deletion
+        File(cacheDir, "cache_file").createNewFile()
+        File(sharedPrefsDir, "prefs.xml").createNewFile()
+        File(dbDir, "app.db").createNewFile()
+
+        every { context.cacheDir } returns cacheDir
+        every { context.filesDir } returns File(rootDir, "files")
+        
+        val events = mutableListOf<AppConfigViewModel.AppConfigEvent>()
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.eventFlow.collect { events.add(it) }
+        }
+
+        // When
+        viewModel.clearAppData()
+        advanceUntilIdle()
+        
+        // Then
+        assertEquals(0, cacheDir.listFiles()?.size ?: 0) // cacheDir is cleared, not deleted? deleteRecursively on dir usually deletes it. 
+        // In clearCacheInternal: context.cacheDir?.deleteRecursively()
+        // If cacheDir is a folder, deleteRecursively deletes it.
+        assertFalse(cacheDir.exists()) 
+        
+        assertFalse(sharedPrefsDir.exists())
+        assertFalse(dbDir.exists())
+        assertTrue(events.any { it is AppConfigViewModel.AppConfigEvent.DataCleared && it.message == "All App Data Cleared" })
+        
+        job.cancel()
+    }
 }

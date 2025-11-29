@@ -1,7 +1,7 @@
 package com.linhphan.lpcore.data.forecast.remote
 
 import com.linhphan.lpcore.data.forecast.ForecastMapper
-import com.linhphan.lpcore.data.forecast.model.ForecastResponseDto
+import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.Forecasts
@@ -32,35 +32,66 @@ class ForecastRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `getForecast returns success when api succeeds`() = runTest {
+    fun `getHourlyForecast success returns Result Success`() = runTest {
         // Given
         val lat = 10.0
         val lon = 20.0
-        val response = ForecastResponseDto(null, null, null, null, null) // Mock response with correct number of arguments
-        val expectedForecasts = Forecasts(CityInfo("City", "Country"), emptyList())
+        val timezone = "UTC"
+        val startDate = "2024-01-01"
+        val endDate = "2024-01-02"
+        
+        val responseDto = OpenMeteoResponseDto(10.0, 20.0, null)
+        val domainForecasts = Forecasts(CityInfo("Unknown Location", "Unknown"), emptyList())
 
-        coEvery { apiService.getThreeHourIntervalForecast(lat = lat, lon = lon, apiKey = any()) } returns response
-        every { mapper.mapToDomain(response) } returns expectedForecasts
+        coEvery { 
+            apiService.getHourlyForecast(lat, lon, timezone = timezone, startDate = startDate, endDate = endDate) 
+        } returns responseDto
+        every { mapper.mapToDomain(responseDto) } returns domainForecasts
 
         // When
-        val result = dataSource.getForecast(lat, lon)
+        val result = dataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
 
         // Then
         assertTrue(result is Result.Success)
-        assertEquals(expectedForecasts, (result as Result.Success).data)
+        assertEquals(domainForecasts, (result as Result.Success).data)
     }
 
     @Test
-    fun `getForecast returns error when api fails`() = runTest {
+    fun `getHourlyForecast api failure returns Result Error`() = runTest {
         // Given
         val lat = 10.0
         val lon = 20.0
-        val exception = RuntimeException("Network Error")
+        val timezone = "UTC"
+        val exception = RuntimeException("Network error")
 
-        coEvery { apiService.getThreeHourIntervalForecast(lat = lat, lon = lon, apiKey = any()) } throws exception
+        coEvery { 
+            apiService.getHourlyForecast(lat, lon, timezone = timezone)
+        } throws exception
 
         // When
-        val result = dataSource.getForecast(lat, lon)
+        val result = dataSource.getHourlyForecast(lat, lon, timezone, null, null)
+
+        // Then
+        assertTrue(result is Result.Error)
+        assertEquals(exception, (result as Result.Error).exception)
+    }
+    
+    @Test
+    fun `getHourlyForecast mapper failure returns Result Error`() = runTest {
+        // Given
+        val lat = 10.0
+        val lon = 20.0
+        val timezone = "UTC"
+        val responseDto = OpenMeteoResponseDto(10.0, 20.0, null)
+        val exception = RuntimeException("Mapping error")
+
+        coEvery { 
+            apiService.getHourlyForecast(lat, lon, timezone = timezone)
+        } returns responseDto
+        every { mapper.mapToDomain(responseDto) } throws exception
+
+        // When
+        val result = dataSource.getHourlyForecast(lat, lon, timezone, null, null)
 
         // Then
         assertTrue(result is Result.Error)
