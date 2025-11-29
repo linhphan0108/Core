@@ -1,9 +1,12 @@
 package com.linhphan.lpcore.data.forecast
 
 import com.linhphan.lpcore.data.forecast.model.CurrentForecastResponseDto
+import com.linhphan.lpcore.data.forecast.model.DailyForecastResponseDto
 import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.CurrentForecast
+import com.linhphan.lpcore.domain.model.DailyForecast
+import com.linhphan.lpcore.domain.model.DailyForecasts
 import com.linhphan.lpcore.domain.model.HourlyForecast
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
@@ -92,5 +95,75 @@ class ForecastMapper @Inject constructor() {
         )
         
         return CurrentForecast(city, forecast)
+    }
+
+    fun mapToDomain(response: DailyForecastResponseDto): DailyForecasts {
+        val city = CityInfo(
+            name = "Unknown Location",
+            country = "Unknown"
+        )
+
+        val daily = response.daily
+        val times = daily?.time ?: emptyList()
+        val weatherCodes = daily?.weatherCode ?: emptyList()
+        val tempMaxs = daily?.temperature2mMax ?: emptyList()
+        val tempMins = daily?.temperature2mMin ?: emptyList()
+        val apparentTempMaxs = daily?.apparentTemperatureMax ?: emptyList()
+        val apparentTempMins = daily?.apparentTemperatureMin ?: emptyList()
+        val sunrises = daily?.sunrise ?: emptyList()
+        val sunsets = daily?.sunset ?: emptyList()
+        val uvIndexMaxs = daily?.uvIndexMax ?: emptyList()
+        val precipitationSums = daily?.precipitationSum ?: emptyList()
+        val precipitationProbabilityMaxs = daily?.precipitationProbabilityMax ?: emptyList()
+        val windSpeedMaxs = daily?.windSpeed10mMax ?: emptyList()
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        dateTimeFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+        val dailyForecastList = times.mapIndexedNotNull { index, timeStr ->
+            if (index < weatherCodes.size && index < tempMaxs.size && index < tempMins.size) {
+                val dateLong = try {
+                    val date = dateFormat.parse(timeStr)
+                    (date?.time ?: 0L) / 1000
+                } catch (e: Exception) {
+                    0L
+                }
+                
+                val sunriseLong = try {
+                    val date = if (index < sunrises.size) dateTimeFormat.parse(sunrises[index]) else null
+                    (date?.time ?: 0L) / 1000
+                } catch (e: Exception) {
+                    0L
+                }
+
+                val sunsetLong = try {
+                    val date = if (index < sunsets.size) dateTimeFormat.parse(sunsets[index]) else null
+                    (date?.time ?: 0L) / 1000
+                } catch (e: Exception) {
+                    0L
+                }
+
+                DailyForecast(
+                    date = dateLong,
+                    weatherCondition = WeatherCondition.fromCode(weatherCodes[index]),
+                    tempMax = tempMaxs[index],
+                    tempMin = tempMins[index],
+                    apparentTempMax = if (index < apparentTempMaxs.size) apparentTempMaxs[index] else 0.0,
+                    apparentTempMin = if (index < apparentTempMins.size) apparentTempMins[index] else 0.0,
+                    sunrise = sunriseLong,
+                    sunset = sunsetLong,
+                    uvIndexMax = if (index < uvIndexMaxs.size) uvIndexMaxs[index] else 0.0,
+                    precipitationSum = if (index < precipitationSums.size) precipitationSums[index] else 0.0,
+                    precipitationProbabilityMax = if (index < precipitationProbabilityMaxs.size) precipitationProbabilityMaxs[index] else 0,
+                    windSpeedMax = if (index < windSpeedMaxs.size) windSpeedMaxs[index] else 0.0
+                )
+            } else {
+                null
+            }
+        }
+
+        return DailyForecasts(city, dailyForecastList)
     }
 }

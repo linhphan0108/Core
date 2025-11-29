@@ -1,6 +1,7 @@
 package com.linhphan.lpcore.data.forecast.remote
 
 import com.linhphan.lpcore.data.forecast.model.CurrentForecastResponseDto
+import com.linhphan.lpcore.data.forecast.model.DailyForecastResponseDto
 import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -38,4 +39,17 @@ interface ForecastApiService {
         @Query("start_date") startDate: String? = null,
         @Query("end_date") endDate: String? = null,
     ): HourlyForecastResponseDto
+
+    /**
+     * Fetches the daily forecast data from Open-Meteo.
+     */
+    @GET("v1/forecast")
+    suspend fun getDailyForecast(
+        @Query("latitude") lat: Double,
+        @Query("longitude") lon: Double,
+        @Query("daily") daily: String = "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,daylight_duration,sunshine_duration,uv_index_max,uv_index_clear_sky_max,rain_sum,showers_sum,precipitation_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,shortwave_radiation_sum,et0_fao_evapotranspiration",
+        @Query("timezone") timezone: String = "Asia/Bangkok",
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+    ): DailyForecastResponseDto
 }

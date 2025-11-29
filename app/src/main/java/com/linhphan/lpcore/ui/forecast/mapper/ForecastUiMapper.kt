@@ -3,9 +3,11 @@ package com.linhphan.lpcore.ui.forecast.mapper
 import android.content.Context
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.domain.model.CurrentForecast
+import com.linhphan.lpcore.domain.model.DailyForecasts
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
 import com.linhphan.lpcore.ui.forecast.model.CurrentForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
@@ -68,6 +70,36 @@ class ForecastUiMapper @Inject constructor(
             ),
             iconRes = getWeatherIcon(domainModel.current.weatherCondition)
         )
+    }
+
+    fun mapToUiModel(domainModel: DailyForecasts): List<DailyForecastUiItem> {
+        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+        dayFormat.timeZone = TimeZone.getDefault()
+        dateFormat.timeZone = TimeZone.getDefault()
+
+        return domainModel.dailyForecasts.map { domainItem ->
+            DailyForecastUiItem(
+                day = dayFormat.format(Date(domainItem.date * 1000)),
+                date = dateFormat.format(Date(domainItem.date * 1000)),
+                description = domainItem.weatherCondition.description.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                },
+                tempMax = context.getString(
+                    R.string.temperature_celsius,
+                    domainItem.tempMax.roundToInt()
+                ),
+                tempMin = context.getString(
+                    R.string.temperature_celsius,
+                    domainItem.tempMin.roundToInt()
+                ),
+                precipitationProbability = context.getString(
+                    R.string.precipitation_probability,
+                    domainItem.precipitationProbabilityMax
+                ),
+                iconRes = getWeatherIcon(domainItem.weatherCondition)
+            )
+        }
     }
 
     private fun getWeatherIcon(condition: WeatherCondition): Int {
