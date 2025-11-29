@@ -6,9 +6,12 @@ import com.linhphan.lpcore.domain.model.Forecasts
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
+import com.linhphan.lpcore.ui.forecast.model.CityUiModel
+import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -97,7 +100,6 @@ class ForecastActivityViewModelTest {
         val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
         val uiModel = ForecastUiModel(cityTitle = "City, Country")
         
-        // Match any params for getHourlyForecastUseCase
         coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(forecasts)
         every { forecastUiMapper.mapToUiModel(any(), forecasts) } returns uiModel
         
@@ -125,5 +127,27 @@ class ForecastActivityViewModelTest {
         
         // Then
         assertEquals(errorMessage, viewModel.uiState.value.errorMessage)
+    }
+
+    @Test
+    fun `cityUiModel change triggers fetch24HourlyForecast`() = runTest(testDispatcher) {
+        // Given
+        val lat = 10.0
+        val lon = 20.0
+        val timezone = "Asia/Bangkok"
+        val newCity = CityUiModel("Hanoi", "Vietnam", CoordinateUiModel(lat, lon, timezone))
+        val forecasts = Forecasts(CityInfo("Hanoi", "Vietnam"), emptyList())
+        val uiModel = ForecastUiModel(cityTitle = "Hanoi, Vietnam")
+
+        coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(forecasts)
+        every { forecastUiMapper.mapToUiModel(newCity, forecasts) } returns uiModel
+
+        // When
+        viewModel.cityUiModel = newCity
+        advanceUntilIdle()
+
+        // Then
+        coVerify { getHourlyForecastUseCase(any()) }
+        assertEquals(uiModel, viewModel.uiState.value)
     }
 }

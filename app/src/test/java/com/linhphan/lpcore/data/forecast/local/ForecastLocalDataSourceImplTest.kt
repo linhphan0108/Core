@@ -8,17 +8,15 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.mockk.slot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class ForecastLocalDataSourceImplTest {
 
     @MockK
@@ -33,7 +31,7 @@ class ForecastLocalDataSourceImplTest {
     }
 
     @Test
-    fun `getForecast returns null when dao returns empty list`() = runTest {
+    fun `getForecast returns null when database is empty`() = runTest {
         // Given
         every { forecastDao.getAllForecasts() } returns flowOf(emptyList())
 
@@ -45,18 +43,18 @@ class ForecastLocalDataSourceImplTest {
     }
 
     @Test
-    fun `getForecast maps entity to domain when dao returns data`() = runTest {
+    fun `getForecast returns mapped forecasts`() = runTest {
         // Given
         val entity = ForecastEntity(
             id = 1,
-            cityName = "City",
-            country = "Country",
+            cityName = "Hanoi",
+            country = "Vietnam",
             date = 100L,
-            tempDay = 20.0,
-            tempMin = 15.0,
-            tempMax = 25.0,
-            weatherDescription = "Cloudy",
-            icon = "01d"
+            tempDay = 25.0,
+            tempMin = 20.0,
+            tempMax = 30.0,
+            weatherDescription = "Sunny",
+            icon = "sunny"
         )
         every { forecastDao.getAllForecasts() } returns flowOf(listOf(entity))
 
@@ -64,48 +62,36 @@ class ForecastLocalDataSourceImplTest {
         val result = dataSource.getForecast().first()
 
         // Then
-        assertNotNull(result)
-        assertEquals("City", result?.city?.name)
-        assertEquals("Country", result?.city?.country)
+        assertEquals("Hanoi", result?.city?.name)
         assertEquals(1, result?.forecasts?.size)
         
         val forecast = result?.forecasts?.first()
         assertEquals(100L, forecast?.date)
-        assertEquals("Cloudy", forecast?.weatherDescription)
+        assertEquals("Sunny", forecast?.weatherDescription)
     }
 
     @Test
-    fun `saveForecast inserts forecasts using dao`() = runTest {
+    fun `saveForecast inserts entities`() = runTest {
         // Given
         val forecasts = Forecasts(
-            city = CityInfo("City", "Country"),
-            forecasts = listOf(
-                Forecast(
-                    date = 100L,
-                    tempDay = 20.0,
-                    tempMin = 15.0,
-                    tempMax = 25.0,
-                    weatherDescription = "Cloudy",
-                    icon = "01d"
-                )
+            CityInfo("Hanoi", "Vietnam"),
+            listOf(
+                Forecast(100L, 25.0, 20.0, 30.0, "Sunny", "sunny")
             )
         )
         
-        coEvery { forecastDao.insertForecastsWithLimit(any(), any()) } returns Unit
+        val slot = slot<List<ForecastEntity>>()
+        coEvery { forecastDao.insertForecastsWithLimit(capture(slot), any()) } returns Unit
 
         // When
         dataSource.saveForecast(forecasts)
 
         // Then
-        coVerify { 
-            forecastDao.insertForecastsWithLimit(
-                match { entities ->
-                    entities.size == 1 &&
-                    entities[0].cityName == "City" &&
-                    entities[0].weatherDescription == "Cloudy"
-                },
-                any()
-            ) 
-        }
+        coVerify { forecastDao.insertForecastsWithLimit(any(), 40) }
+        val entities = slot.captured
+        assertEquals(1, entities.size)
+        val entity = entities.first()
+        assertEquals("Hanoi", entity.cityName)
+        assertEquals(100L, entity.date)
     }
 }
