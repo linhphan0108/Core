@@ -4,8 +4,8 @@ import com.android.build.api.variant.HostTestBuilder
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -107,6 +107,7 @@ dependencies {
     // Network
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
 
     // Room
     implementation(libs.androidx.room.runtime)
