@@ -32,6 +32,9 @@ class ForecastActivityViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ForecastUiModel())
     val uiState: StateFlow<ForecastUiModel> = _uiState.asStateFlow()
+
+    private val _isHourlyForecastLoading = MutableStateFlow(false)
+    val isHourlyForecastLoading: StateFlow<Boolean> = _isHourlyForecastLoading.asStateFlow()
     
     private var fetchForecastJob: Job? = null
 
@@ -45,7 +48,9 @@ class ForecastActivityViewModel @Inject constructor(
     fun fetchForecast(lat: Double, lon: Double) {
         fetchForecastJob?.cancel()
         fetchForecastJob = viewModelScope.launch {
+            _isHourlyForecastLoading.value = true
             getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
+                _isHourlyForecastLoading.value = false
                  when (result) {
                     is Result.Success -> {
                         _uiState.value = forecastUiMapper.mapToUiModel(cityUiModel, result.data)
@@ -65,7 +70,9 @@ class ForecastActivityViewModel @Inject constructor(
         val (startDate, endDate) = calculateStartAndEndDate(timezone)
         
         viewModelScope.launch {
+            _isHourlyForecastLoading.value = true
             val result = getHourlyForecastUseCase(IGetHourlyForecastUseCase.Params(lat, lon, timezone, startDate, endDate))
+            _isHourlyForecastLoading.value = false
             when (result) {
                 is Result.Success -> {
                     _uiState.value = forecastUiMapper.mapToUiModel(cityUiModel, result.data)

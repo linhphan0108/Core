@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
+import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
@@ -30,10 +31,11 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            // Set a default city (e.g., the first one in your list)
-            val city = cities.random()
-            viewModel.cityUiModel = city
-            binding.etCityName.setText(city.name)
+            // Set a default city to start with
+            val cityUiModel = cities.random()
+            viewModel.cityUiModel = cityUiModel
+            binding.etCityName.setText(cityUiModel.name)
+            binding.tvCityTitle.text = getFormatedCityCountry(cityUiModel)
         }
     }
 
@@ -45,9 +47,11 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
         binding.etCityName.setAdapter(adapter)
         binding.etCityName.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.cityUiModel = parent.getItemAtPosition(position) as CityUiModel
+            val cityUiModel = parent.getItemAtPosition(position) as CityUiModel
+            viewModel.cityUiModel = cityUiModel
             // Clear focus to hide keyboard if needed
             binding.etCityName.clearFocus()
+            binding.tvCityTitle.text = getFormatedCityCountry(cityUiModel)
         }
 
         // Show dropdown immediately when focused (if empty or not)
@@ -71,9 +75,9 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isLoading.collect {
-                    binding.progressBar.isVisible = it
-
+                viewModel.isHourlyForecastLoading.collect {
+                    binding.progressBarDailyForecast.isVisible = it
+                    binding.rvForecast.isVisible = !it
                 }
             }
         }
@@ -84,10 +88,13 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
                     if (state.errorMessage != null) {
                         Snackbar.make(binding.root, state.errorMessage, Snackbar.LENGTH_LONG).show()
                     }
-                    binding.tvCityTitle.text = state.cityTitle
                     forecastAdapter.updateData(state.items)
                 }
             }
         }
+    }
+
+    private fun getFormatedCityCountry(cityUiModel: CityUiModel): String {
+        return getString(R.string.city_country_format, cityUiModel.name, cityUiModel.country)
     }
 }
