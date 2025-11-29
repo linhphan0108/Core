@@ -1,7 +1,9 @@
 package com.linhphan.lpcore.data.forecast
 
+import com.linhphan.lpcore.data.forecast.model.CurrentForecastResponseDto
 import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import com.linhphan.lpcore.domain.model.CityInfo
+import com.linhphan.lpcore.domain.model.CurrentForecast
 import com.linhphan.lpcore.domain.model.HourlyForecast
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
@@ -56,5 +58,35 @@ class ForecastMapper @Inject constructor() {
         }
         
         return HourlyForecasts(city, hourlyForecastList)
+    }
+
+    fun mapToDomain(response: CurrentForecastResponseDto): CurrentForecast? {
+        val current = response.currentForecasts ?: return null
+        val city = CityInfo(
+            name = "Unknown Location", // Open-Meteo doesn't return city name
+            country = "Unknown"
+        )
+        
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        
+        val dateLong = try {
+            val date = dateFormat.parse(current.time ?: "")
+            (date?.time ?: 0L) / 1000
+        } catch (e: Exception) {
+            0L
+        }
+        
+        val forecast = HourlyForecast(
+            date = dateLong,
+            tempDay = current.temperature2m ?: 0.0,
+            tempMin = current.temperature2m ?: 0.0,
+            tempMax = current.temperature2m ?: 0.0,
+            weatherCondition = WeatherCondition.fromCode(current.weatherCode ?: 0),
+            icon = "",
+            precipitationProbability = 0 // Current weather doesn't give probability usually
+        )
+        
+        return CurrentForecast(city, forecast)
     }
 }
