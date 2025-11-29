@@ -1,8 +1,8 @@
 package com.linhphan.lpcore.data.forecast.local
 
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecast
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecast
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -65,9 +65,9 @@ class ForecastLocalDataSourceImplTest {
 
         // Then
         assertEquals("Hanoi", result?.city?.name)
-        assertEquals(1, result?.forecasts?.size)
+        assertEquals(1, result?.hourlyForecasts?.size)
         
-        val forecast = result?.forecasts?.first()
+        val forecast = result?.hourlyForecasts?.first()
         assertEquals(100L, forecast?.date)
         assertEquals(WeatherCondition.CLEAR_SKY, forecast?.weatherCondition)
         assertEquals(10, forecast?.precipitationProbability)
@@ -76,10 +76,10 @@ class ForecastLocalDataSourceImplTest {
     @Test
     fun `saveForecast inserts entities`() = runTest {
         // Given
-        val forecasts = Forecasts(
+        val hourlyForecasts = HourlyForecasts(
             CityInfo("Hanoi", "Vietnam"),
             listOf(
-                Forecast(100L, 25.0, 20.0, 30.0, WeatherCondition.CLEAR_SKY, "sunny", 10)
+                HourlyForecast(100L, 25.0, 20.0, 30.0, WeatherCondition.CLEAR_SKY, "sunny", 10)
             )
         )
         
@@ -87,7 +87,7 @@ class ForecastLocalDataSourceImplTest {
         coEvery { forecastDao.insertForecastsWithLimit(capture(slot), any()) } returns Unit
 
         // When
-        dataSource.saveForecast(forecasts)
+        dataSource.saveForecast(hourlyForecasts)
 
         // Then
         coVerify { forecastDao.insertForecastsWithLimit(any(), 40) }

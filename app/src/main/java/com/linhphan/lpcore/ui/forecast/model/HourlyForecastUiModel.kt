@@ -1,6 +1,6 @@
 package com.linhphan.lpcore.ui.forecast.model
 
-data class ForecastUiModel(
+data class HourlyForecastUiModel(
     val cityTitle: String = "",
     val items: List<ForecastUiItem> = emptyList(),
     val errorMessage: String? = null

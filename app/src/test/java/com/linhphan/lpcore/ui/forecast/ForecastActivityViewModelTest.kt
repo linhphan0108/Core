@@ -2,13 +2,13 @@ package com.linhphan.lpcore.ui.forecast
 
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
-import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -60,11 +60,11 @@ class ForecastActivityViewModelTest {
         // Given
         val lat = 10.0
         val lon = 20.0
-        val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        val uiModel = ForecastUiModel(cityTitle = "City, Country")
+        val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
+        val uiModel = HourlyForecastUiModel(cityTitle = "City, Country")
         
-        coEvery { getForecastUseCase(IGetForecastUseCase.Params(lat, lon)) } returns flowOf(Result.Success(forecasts))
-        every { forecastUiMapper.mapToUiModel(any(), forecasts) } returns uiModel
+        coEvery { getForecastUseCase(IGetForecastUseCase.Params(lat, lon)) } returns flowOf(Result.Success(hourlyForecasts))
+        every { forecastUiMapper.mapToUiModel(any(), hourlyForecasts) } returns uiModel
         
         // When
         viewModel.fetchForecast(lat, lon)
@@ -97,11 +97,11 @@ class ForecastActivityViewModelTest {
         val lat = 10.0
         val lon = 20.0
         val timezone = "Asia/Bangkok"
-        val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        val uiModel = ForecastUiModel(cityTitle = "City, Country")
+        val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
+        val uiModel = HourlyForecastUiModel(cityTitle = "City, Country")
         
-        coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(forecasts)
-        every { forecastUiMapper.mapToUiModel(any(), forecasts) } returns uiModel
+        coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
+        every { forecastUiMapper.mapToUiModel(any(), hourlyForecasts) } returns uiModel
         
         // When
         viewModel.fetch24HourlyForecast(lat, lon, timezone)
@@ -136,11 +136,11 @@ class ForecastActivityViewModelTest {
         val lon = 20.0
         val timezone = "Asia/Bangkok"
         val newCity = CityUiModel("Hanoi", "Vietnam", CoordinateUiModel(lat, lon, timezone))
-        val forecasts = Forecasts(CityInfo("Hanoi", "Vietnam"), emptyList())
-        val uiModel = ForecastUiModel(cityTitle = "Hanoi, Vietnam")
+        val hourlyForecasts = HourlyForecasts(CityInfo("Hanoi", "Vietnam"), emptyList())
+        val uiModel = HourlyForecastUiModel(cityTitle = "Hanoi, Vietnam")
 
-        coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(forecasts)
-        every { forecastUiMapper.mapToUiModel(newCity, forecasts) } returns uiModel
+        coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
+        every { forecastUiMapper.mapToUiModel(newCity, hourlyForecasts) } returns uiModel
 
         // When
         viewModel.cityUiModel = newCity

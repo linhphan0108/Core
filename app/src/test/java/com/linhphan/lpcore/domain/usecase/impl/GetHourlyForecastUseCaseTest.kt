@@ -2,7 +2,7 @@ package com.linhphan.lpcore.domain.usecase.impl
 
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import io.mockk.MockKAnnotations
@@ -40,8 +40,8 @@ class GetHourlyForecastUseCaseTest {
         val endDate = "2024-01-02"
         val params = IGetHourlyForecastUseCase.Params(lat, lon, timezone, startDate, endDate)
         
-        val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        val expectedResult = Result.Success(forecasts)
+        val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
+        val expectedResult = Result.Success(hourlyForecasts)
         
         coEvery { 
             repository.getHourlyForecast(lat, lon, timezone, startDate, endDate) 

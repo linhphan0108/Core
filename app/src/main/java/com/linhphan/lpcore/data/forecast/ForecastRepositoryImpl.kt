@@ -4,7 +4,7 @@ import com.linhphan.lpcore.data.forecast.local.ForecastLocalDataSource
 import com.linhphan.lpcore.data.forecast.remote.ForecastRemoteDataSource
 import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.domain.base.Result
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -20,12 +20,12 @@ class ForecastRepositoryImpl @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ForecastRepository {
 
-    override fun getForecast(lat: Double, lon: Double): Flow<Result<Forecasts>> {
+    override fun getForecast(lat: Double, lon: Double): Flow<Result<HourlyForecasts>> {
         return localDataSource.getForecast()
             .distinctUntilChanged()
             .map { forecast ->
                 if (forecast != null) {
-                    Timber.i("${forecast.forecasts.size} forecasts fetched from local DB")
+                    Timber.i("${forecast.hourlyForecasts.size} forecasts fetched from local DB")
                     Result.Success(forecast)
                 } else {
                     Result.Error(Exception("No local data found"))
@@ -40,7 +40,7 @@ class ForecastRepositoryImpl @Inject constructor(
         timezone: String,
         startDate: String?,
         endDate: String?,
-    ): Result<Forecasts> {
+    ): Result<HourlyForecasts> {
         return remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate)
     }
 }

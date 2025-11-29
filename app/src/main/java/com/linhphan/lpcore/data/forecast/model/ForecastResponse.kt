@@ -2,13 +2,13 @@ package com.linhphan.lpcore.data.forecast.model
 
 import com.google.gson.annotations.SerializedName
 
-data class OpenMeteoResponseDto(
+data class HourlyForecastResponseDto(
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
-    @SerializedName("hourly") val hourly: HourlyDto?
+    @SerializedName("hourly") val hourly: HourlyForecastDto?
 )
 
-data class HourlyDto(
+data class HourlyForecastDto(
     @SerializedName("time") val time: List<String>?,
     @SerializedName("temperature_2m") val temperature2m: List<Double>?,
     @SerializedName("relative_humidity_2m") val relativeHumidity2m: List<Int>?,

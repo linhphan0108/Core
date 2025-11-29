@@ -1,6 +1,6 @@
 package com.linhphan.lpcore.data.forecast.remote
 
-import com.linhphan.lpcore.data.forecast.model.OpenMeteoResponseDto
+import com.linhphan.lpcore.data.forecast.model.HourlyForecastResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -14,7 +14,7 @@ interface ForecastApiService {
      * @param timezone Timezone for the forecast.
      * @param startDate Start date (YYYY-MM-DD).
      * @param endDate End date (YYYY-MM-DD).
-     * @return A [OpenMeteoResponseDto] containing the weather forecast data.
+     * @return A [HourlyForecastResponseDto] containing the weather forecast data.
      */
     @GET("v1/forecast")
     suspend fun getHourlyForecast(
@@ -24,5 +24,5 @@ interface ForecastApiService {
         @Query("timezone") timezone: String = "Asia/Bangkok",
         @Query("start_date") startDate: String? = null,
         @Query("end_date") endDate: String? = null,
-    ): OpenMeteoResponseDto
+    ): HourlyForecastResponseDto
 }

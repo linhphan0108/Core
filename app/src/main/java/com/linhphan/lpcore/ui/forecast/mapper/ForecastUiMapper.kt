@@ -2,12 +2,12 @@ package com.linhphan.lpcore.ui.forecast.mapper
 
 import android.content.Context
 import com.linhphan.lpcore.R
-import com.linhphan.lpcore.domain.model.Forecast
-import com.linhphan.lpcore.domain.model.Forecasts
+import com.linhphan.lpcore.domain.model.HourlyForecast
+import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.model.WeatherCondition
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
-import com.linhphan.lpcore.ui.forecast.model.ForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,18 +20,18 @@ class ForecastUiMapper @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
 
-    fun mapToUiModel(cityUiModel: CityUiModel, domainModel: Forecasts): ForecastUiModel {
-        return ForecastUiModel(
+    fun mapToUiModel(cityUiModel: CityUiModel, domainModel: HourlyForecasts): HourlyForecastUiModel {
+        return HourlyForecastUiModel(
             cityTitle = context.getString(
                 R.string.city_country_format,
                 cityUiModel.name,
                 cityUiModel.country,
             ),
-            items = domainModel.forecasts.map { mapItem(it) }
+            items = domainModel.hourlyForecasts.map { mapItem(it) }
         )
     }
 
-    private fun mapItem(domainItem: Forecast): ForecastUiItem {
+    private fun mapItem(domainItem: HourlyForecast): ForecastUiItem {
         val hourFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         hourFormat.timeZone = TimeZone.getDefault()
 
