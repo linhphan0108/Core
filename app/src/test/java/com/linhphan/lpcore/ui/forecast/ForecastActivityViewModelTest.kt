@@ -2,13 +2,16 @@ package com.linhphan.lpcore.ui.forecast
 
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
+import com.linhphan.lpcore.domain.model.DailyForecasts
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
+import com.linhphan.lpcore.domain.usecase.IGetDailyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
+import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
 import io.mockk.MockKAnnotations
@@ -42,6 +45,9 @@ class ForecastActivityViewModelTest {
     lateinit var getHourlyForecastUseCase: IGetHourlyForecastUseCase
 
     @MockK
+    lateinit var getDailyForecastUseCase: IGetDailyForecastUseCase
+
+    @MockK
     lateinit var forecastUiMapper: ForecastUiMapper
 
     private lateinit var viewModel: ForecastActivityViewModel
@@ -52,7 +58,7 @@ class ForecastActivityViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = ForecastActivityViewModel(getForecastUseCase, getHourlyForecastUseCase, getCurrentForecastUseCase, forecastUiMapper)
+        viewModel = ForecastActivityViewModel(getForecastUseCase, getHourlyForecastUseCase, getCurrentForecastUseCase, getDailyForecastUseCase, forecastUiMapper)
     }
 
     @After
@@ -165,10 +171,22 @@ class ForecastActivityViewModelTest {
             precipitationProbability = "0%",
             iconRes = 0
         ))
+        val dailyForecasts = DailyForecasts(CityInfo("Hanoi", "Vietnam"), emptyList())
+        val dailyUiModel = listOf(DailyForecastUiItem(
+            day = "Mon",
+            date = "25/11",
+            description = "Sunny",
+            tempMax = "30",
+            tempMin = "20",
+            precipitationProbability = "0%",
+            iconRes = 0
+        ))
 
         coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
         coEvery { getCurrentForecastUseCase(any()) } returns Result.Error(Exception("Ignore"))
+        coEvery { getDailyForecastUseCase(any()) } returns Result.Success(dailyForecasts)
         every { forecastUiMapper.mapToUiModel(hourlyForecasts) } returns uiModel
+        every { forecastUiMapper.mapToUiModel(dailyForecasts) } returns dailyUiModel
 
         // When
         viewModel.cityUiModel = newCity
@@ -176,6 +194,56 @@ class ForecastActivityViewModelTest {
 
         // Then
         coVerify { getHourlyForecastUseCase(any()) }
+        coVerify { getDailyForecastUseCase(any()) }
         assertEquals(UiState.Success(uiModel), viewModel.hourlyForecastUiState.value)
+        assertEquals(UiState.Success(dailyUiModel), viewModel.dailyForecastUiState.value)
+    }
+
+    @Test
+    fun `fetch10DayDailyForecast success updates uiState`() = runTest(testDispatcher) {
+        // Given
+        val lat = 10.0
+        val lon = 20.0
+        val timezone = "Asia/Bangkok"
+        val dailyForecasts = DailyForecasts(CityInfo("City", "Country"), emptyList())
+        val uiModel = listOf(DailyForecastUiItem(
+            day = "Mon",
+            date = "25/11",
+            description = "Sunny",
+            tempMax = "30",
+            tempMin = "20",
+            precipitationProbability = "0%",
+            iconRes = 0
+        ))
+
+        coEvery { getDailyForecastUseCase(any()) } returns Result.Success(dailyForecasts)
+        every { forecastUiMapper.mapToUiModel(dailyForecasts) } returns uiModel
+
+        // When
+        viewModel.fetch10DayDailyForecast(lat, lon, timezone)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(UiState.Success(uiModel), viewModel.dailyForecastUiState.value)
+    }
+
+    @Test
+    fun `fetch10DayDailyForecast error updates uiState with error message`() = runTest(testDispatcher) {
+        // Given
+        val lat = 10.0
+        val lon = 20.0
+        val timezone = "Asia/Bangkok"
+        val errorMessage = "Daily Forecast Error"
+
+        coEvery { getDailyForecastUseCase(any()) } returns Result.Error(Exception(errorMessage))
+
+        // When
+        viewModel.fetch10DayDailyForecast(lat, lon, timezone)
+        advanceUntilIdle()
+
+        // Then
+        val currentState = viewModel.dailyForecastUiState.value
+        assert(currentState is UiState.Error)
+        assertEquals(errorMessage, (currentState as UiState.Error).message)
     }
 }
