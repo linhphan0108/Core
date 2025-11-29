@@ -78,16 +78,11 @@ class ForecastActivityViewModel @Inject constructor(
             getForecastUseCase(IGetForecastUseCase.Params(lat, lon)).collect { result ->
                 when (result) {
                     is Result.Success -> {
-                        // This use case returns HourlyForecasts but from local DB (flow)
-                        // We might need to adjust mapper to support merging or just update hourly part
-//                        _hourlyForecastUiState.value =
-//                            forecastUiMapper.mapToUiModel(domainModel = result.data)
+                        _hourlyForecastUiState.value = UiState.Success(forecastUiMapper.mapToUiModel(domainModel = result.data))
                     }
 
                     is Result.Error -> {
-//                        _hourlyForecastUiState.value = _hourlyForecastUiState.value.copy(
-//                            errorMessage = result.exception.message
-//                        )
+                        _hourlyForecastUiState.value = UiState.Error(result.exception.message)
                         Timber.e(result.exception, "Error fetching forecast for lat=$lat, lon=$lon")
                     }
                 }

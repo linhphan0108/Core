@@ -3,12 +3,14 @@ package com.linhphan.lpcore.ui.forecast
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.model.CityInfo
 import com.linhphan.lpcore.domain.model.HourlyForecasts
+import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
-import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiModel
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
+import com.linhphan.lpcore.ui.forecast.model.UiState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,6 +36,9 @@ class ForecastActivityViewModelTest {
     lateinit var getForecastUseCase: IGetForecastUseCase
 
     @MockK
+    lateinit var getCurrentForecastUseCase: IGetCurrentForecastUseCase
+
+    @MockK
     lateinit var getHourlyForecastUseCase: IGetHourlyForecastUseCase
 
     @MockK
@@ -47,7 +52,7 @@ class ForecastActivityViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = ForecastActivityViewModel(getForecastUseCase, getHourlyForecastUseCase, forecastUiMapper)
+        viewModel = ForecastActivityViewModel(getForecastUseCase, getHourlyForecastUseCase, getCurrentForecastUseCase, forecastUiMapper)
     }
 
     @After
@@ -61,17 +66,23 @@ class ForecastActivityViewModelTest {
         val lat = 10.0
         val lon = 20.0
         val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
-        val uiModel = HourlyForecastUiModel(cityTitle = "City, Country")
+        val uiModel = listOf(HourlyForecastUiItem(
+            hour = "10:00",
+            description = "Sunny",
+            tempMax = "30",
+            precipitationProbability = "0%",
+            iconRes = 0
+        ))
         
         coEvery { getForecastUseCase(IGetForecastUseCase.Params(lat, lon)) } returns flowOf(Result.Success(hourlyForecasts))
-        every { forecastUiMapper.mapToUiModel(any(), hourlyForecasts) } returns uiModel
+        every { forecastUiMapper.mapToUiModel(hourlyForecasts) } returns uiModel
         
         // When
         viewModel.fetchForecast(lat, lon)
         advanceUntilIdle()
         
         // Then
-        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
+        assertEquals(UiState.Success(uiModel), viewModel.hourlyForecastUiState.value)
     }
 
     @Test
@@ -88,7 +99,9 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(errorMessage, viewModel.hourlyForecastUiState.value.errorMessage)
+        val currentState = viewModel.hourlyForecastUiState.value
+        assert(currentState is UiState.Error)
+        assertEquals(errorMessage, (currentState as UiState.Error).message)
     }
     
     @Test
@@ -98,17 +111,23 @@ class ForecastActivityViewModelTest {
         val lon = 20.0
         val timezone = "Asia/Bangkok"
         val hourlyForecasts = HourlyForecasts(CityInfo("City", "Country"), emptyList())
-        val uiModel = HourlyForecastUiModel(cityTitle = "City, Country")
+        val uiModel = listOf(HourlyForecastUiItem(
+            hour = "10:00",
+            description = "Sunny",
+            tempMax = "30",
+            precipitationProbability = "0%",
+            iconRes = 0
+        ))
         
         coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
-        every { forecastUiMapper.mapToUiModel(any(), hourlyForecasts) } returns uiModel
+        every { forecastUiMapper.mapToUiModel(hourlyForecasts) } returns uiModel
         
         // When
         viewModel.fetch24HourlyForecast(lat, lon, timezone)
         advanceUntilIdle()
         
         // Then
-        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
+        assertEquals(UiState.Success(uiModel), viewModel.hourlyForecastUiState.value)
     }
     
     @Test
@@ -126,7 +145,9 @@ class ForecastActivityViewModelTest {
         advanceUntilIdle()
         
         // Then
-        assertEquals(errorMessage, viewModel.hourlyForecastUiState.value.errorMessage)
+        val currentState = viewModel.hourlyForecastUiState.value
+        assert(currentState is UiState.Error)
+        assertEquals(errorMessage, (currentState as UiState.Error).message)
     }
 
     @Test
@@ -137,10 +158,17 @@ class ForecastActivityViewModelTest {
         val timezone = "Asia/Bangkok"
         val newCity = CityUiModel("Hanoi", "Vietnam", CoordinateUiModel(lat, lon, timezone))
         val hourlyForecasts = HourlyForecasts(CityInfo("Hanoi", "Vietnam"), emptyList())
-        val uiModel = HourlyForecastUiModel(cityTitle = "Hanoi, Vietnam")
+        val uiModel = listOf(HourlyForecastUiItem(
+            hour = "10:00",
+            description = "Sunny",
+            tempMax = "30",
+            precipitationProbability = "0%",
+            iconRes = 0
+        ))
 
         coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
-        every { forecastUiMapper.mapToUiModel(newCity, hourlyForecasts) } returns uiModel
+        coEvery { getCurrentForecastUseCase(any()) } returns Result.Error(Exception("Ignore"))
+        every { forecastUiMapper.mapToUiModel(hourlyForecasts) } returns uiModel
 
         // When
         viewModel.cityUiModel = newCity
@@ -148,6 +176,6 @@ class ForecastActivityViewModelTest {
 
         // Then
         coVerify { getHourlyForecastUseCase(any()) }
-        assertEquals(uiModel, viewModel.hourlyForecastUiState.value)
+        assertEquals(UiState.Success(uiModel), viewModel.hourlyForecastUiState.value)
     }
 }
