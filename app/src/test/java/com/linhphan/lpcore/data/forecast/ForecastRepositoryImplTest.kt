@@ -67,32 +67,23 @@ class ForecastRepositoryImplTest {
     }
 
     @Test
-    fun `refreshForecast saves to local when remote success`() = runTest(testDispatcher) {
+    fun `getHourlyForecast delegates to remoteDataSource`() = runTest(testDispatcher) {
         // Given
         val forecasts = Forecasts(CityInfo("City", "Country"), emptyList())
-        coEvery { remoteDataSource.getHourlyForecast(any(), any()) } returns Result.Success(forecasts)
-        coEvery { localDataSource.saveForecast(any()) } returns Unit
+        val lat = 10.0
+        val lon = 20.0
+        val timezone = "Asia/Bangkok"
+        val startDate = "2024-01-01"
+        val endDate = "2024-01-02"
+        
+        coEvery { remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate) } returns Result.Success(forecasts)
 
         // When
-        val result = repository.refreshForecast(0.0, 0.0)
+        val result = repository.getHourlyForecast(lat, lon, timezone, startDate, endDate)
 
         // Then
         assertTrue(result is Result.Success)
-        coVerify { localDataSource.saveForecast(forecasts) }
-    }
-
-    @Test
-    fun `refreshForecast returns error when remote fails`() = runTest(testDispatcher) {
-        // Given
-        val exception = Exception("Remote Error")
-        coEvery { remoteDataSource.getHourlyForecast(any(), any()) } returns Result.Error(exception)
-
-        // When
-        val result = repository.refreshForecast(0.0, 0.0)
-
-        // Then
-        assertTrue(result is Result.Error)
-        assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 0) { localDataSource.saveForecast(any()) }
+        assertEquals(forecasts, (result as Result.Success).data)
+        coVerify { remoteDataSource.getHourlyForecast(lat, lon, timezone, startDate, endDate) }
     }
 }
