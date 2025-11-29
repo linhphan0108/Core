@@ -8,6 +8,12 @@ data class HourlyForecastResponseDto(
     @SerializedName("hourly") val hourly: HourlyForecastDto?
 )
 
+data class CurrentForecastResponseDto(
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("current") val currentForecasts: CurrentForecastDto?
+)
+
 data class HourlyForecastDto(
     @SerializedName("time") val time: List<String>?,
     @SerializedName("temperature_2m") val temperature2m: List<Double>?,
@@ -31,4 +37,23 @@ data class HourlyForecastDto(
     @SerializedName("evapotranspiration") val evapotranspiration: List<Double>?,
     @SerializedName("et0_fao_evapotranspiration") val et0FaoEvapotranspiration: List<Double>?,
     @SerializedName("vapour_pressure_deficit") val vapourPressureDeficit: List<Double>?
+)
+
+data class CurrentForecastDto(
+    @SerializedName("time") val time: String?,
+    @SerializedName("temperature_2m") val temperature2m: Double?,
+    @SerializedName("relative_humidity_2m") val relativeHumidity2m: Int?,
+    @SerializedName("apparent_temperature") val apparentTemperature: Double?,
+    @SerializedName("is_day") val isDay: Int?,
+    @SerializedName("precipitation") val precipitation: Double?,
+    @SerializedName("rain") val rain: Double?,
+    @SerializedName("showers") val showers: Double?,
+    @SerializedName("snowfall") val snowfall: Double?,
+    @SerializedName("weather_code") val weatherCode: Int?,
+    @SerializedName("cloud_cover") val cloudCover: Int?,
+    @SerializedName("pressure_msl") val pressureMsl: Double?,
+    @SerializedName("surface_pressure") val surfacePressure: Double?,
+    @SerializedName("wind_speed_10m") val windSpeed10m: Double?,
+    @SerializedName("wind_direction_10m") val windDirection10m: Double?,
+    @SerializedName("wind_gusts_10m") val windGusts10m: Double?
 )

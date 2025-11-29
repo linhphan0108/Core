@@ -4,6 +4,7 @@ import com.linhphan.lpcore.data.forecast.local.ForecastLocalDataSource
 import com.linhphan.lpcore.data.forecast.remote.ForecastRemoteDataSource
 import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.domain.base.Result
+import com.linhphan.lpcore.domain.model.CurrentForecast
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,6 +33,16 @@ class ForecastRepositoryImpl @Inject constructor(
                 }
             }
             .flowOn(ioDispatcher)
+    }
+
+    override suspend fun getCurrentForecast(
+        lat: Double,
+        lon: Double,
+        timezone: String,
+        startDate: String?,
+        endDate: String?
+    ): Result<CurrentForecast> {
+        return remoteDataSource.getCurrentForecast(lat, lon, timezone)
     }
 
     override suspend fun getHourlyForecast(

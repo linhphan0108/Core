@@ -25,7 +25,7 @@ class ForecastMapperTest {
                 temperature2m = listOf(25.0),
                 relativeHumidity2m = null,
                 dewPoint2m = null,
-                apparentTemperature = null,
+                apparentTemperature = listOf(25.0),
                 precipitationProbability = listOf(10),
                 precipitation = null,
                 rain = null,
@@ -60,6 +60,7 @@ class ForecastMapperTest {
         assertEquals(25.0, forecast.tempMax, 0.0)
         assertEquals(WeatherCondition.CLEAR_SKY, forecast.weatherCondition)
         assertEquals(10, forecast.precipitationProbability)
+        assertEquals(25.0, forecast.apparentTemperature, 0.0)
         assertEquals("", forecast.icon) // Icon mapping is not yet implemented
     }
     

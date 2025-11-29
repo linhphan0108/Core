@@ -3,16 +3,17 @@ package com.linhphan.lpcore.ui.forecast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.snackbar.Snackbar
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
+import com.linhphan.lpcore.ui.forecast.model.UiState
 import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -73,22 +74,72 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     }
 
     override fun setupObservers() {
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isHourlyForecastLoading.collect {
-                    binding.progressBarDailyForecast.isVisible = it
-                    binding.rvForecast.isVisible = !it
+                viewModel.currentForecastUiState.collect { uiState ->
+                    when (uiState) {
+                        is UiState.Loading -> {
+//                            binding.progressBar.isVisible = true
+                        }
+
+                        is UiState.Empty -> {
+//                            binding.progressBar.isVisible = false
+                        }
+
+                        is UiState.Success -> {
+                            val currentForecastUiModel = uiState.data
+                            binding.tvCurrentTemp.text = currentForecastUiModel.temp
+                            binding.tvCurrentWeatherCondition.text =
+                                currentForecastUiModel.weatherCondition
+                            binding.tvFeelsLike.text = currentForecastUiModel.feelsLike
+                            binding.tvHighLow.text = currentForecastUiModel.highLow
+                            binding.ivCurrentWeatherIcon.setImageResource(currentForecastUiModel.iconRes)
+//                            binding.progressBar.isVisible = false
+                        }
+
+                        is UiState.Error -> {
+//                            binding.progressBar.isVisible = false
+                            Toast.makeText(
+                                this@ForecastActivity,
+                                uiState.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             }
         }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    if (state.errorMessage != null) {
-                        Snackbar.make(binding.root, state.errorMessage, Snackbar.LENGTH_LONG).show()
+                viewModel.hourlyForecastUiState.collect { uiState ->
+                    when (uiState) {
+                        is UiState.Loading -> {
+                            binding.hourlyForecastprogressBar.isVisible = true
+                            binding.rvForecast.isVisible = false
+                        }
+
+                        is UiState.Empty -> {
+                            binding.hourlyForecastprogressBar.isVisible = false
+
+                        }
+
+                        is UiState.Success -> {
+                            forecastAdapter.updateData(uiState.data)
+                            binding.hourlyForecastprogressBar.isVisible = false
+                            binding.rvForecast.isVisible = true
+                        }
+
+                        is UiState.Error -> {
+                            binding.hourlyForecastprogressBar.isVisible = false
+                            Toast.makeText(
+                                this@ForecastActivity,
+                                uiState.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-                    forecastAdapter.updateData(state.items)
                 }
             }
         }

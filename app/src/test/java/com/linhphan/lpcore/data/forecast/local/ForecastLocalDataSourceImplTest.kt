@@ -54,6 +54,7 @@ class ForecastLocalDataSourceImplTest {
             tempDay = 25.0,
             tempMin = 20.0,
             tempMax = 30.0,
+            apparentTemperature = 25.0,
             weatherCode = 0,
             icon = "sunny",
             precipitationProbability = 10
@@ -79,7 +80,7 @@ class ForecastLocalDataSourceImplTest {
         val hourlyForecasts = HourlyForecasts(
             CityInfo("Hanoi", "Vietnam"),
             listOf(
-                HourlyForecast(100L, 25.0, 20.0, 30.0, WeatherCondition.CLEAR_SKY, "sunny", 10)
+                HourlyForecast(100L, 25.0, 20.0, 30.0, 25.0, WeatherCondition.CLEAR_SKY, "sunny", 10)
             )
         )
         
@@ -94,6 +95,7 @@ class ForecastLocalDataSourceImplTest {
         val entities = slot.captured
         assertEquals(1, entities.size)
         val entity = entities.first()
+        
         assertEquals("Hanoi", entity.cityName)
         assertEquals(100L, entity.date)
         assertEquals(0, entity.weatherCode)

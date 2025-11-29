@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ItemForecastBinding
-import com.linhphan.lpcore.ui.forecast.model.ForecastUiItem
+import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 
-class ForecastAdapter : ListAdapter<ForecastUiItem, ForecastAdapter.ForecastViewHolder>(ForecastDiffCallback()) {
+class ForecastAdapter : ListAdapter<HourlyForecastUiItem, ForecastAdapter.ForecastViewHolder>(ForecastDiffCallback()) {
 
-    fun updateData(newItems: List<ForecastUiItem>) {
+    fun updateData(newItems: List<HourlyForecastUiItem>) {
         submitList(newItems)
     }
 
@@ -25,7 +25,7 @@ class ForecastAdapter : ListAdapter<ForecastUiItem, ForecastAdapter.ForecastView
     }
 
     class ForecastViewHolder(private val binding: ItemForecastBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ForecastUiItem) {
+        fun bind(item: HourlyForecastUiItem) {
             binding.tvHour.text = item.hour
             binding.tvTempMax.text = item.tempMax
             binding.tvPrecipitation.text = item.precipitationProbability
@@ -33,12 +33,12 @@ class ForecastAdapter : ListAdapter<ForecastUiItem, ForecastAdapter.ForecastView
         }
     }
 
-    class ForecastDiffCallback : DiffUtil.ItemCallback<ForecastUiItem>() {
-        override fun areItemsTheSame(oldItem: ForecastUiItem, newItem: ForecastUiItem): Boolean {
+    class ForecastDiffCallback : DiffUtil.ItemCallback<HourlyForecastUiItem>() {
+        override fun areItemsTheSame(oldItem: HourlyForecastUiItem, newItem: HourlyForecastUiItem): Boolean {
             return oldItem.hour == newItem.hour
         }
 
-        override fun areContentsTheSame(oldItem: ForecastUiItem, newItem: ForecastUiItem): Boolean {
+        override fun areContentsTheSame(oldItem: HourlyForecastUiItem, newItem: HourlyForecastUiItem): Boolean {
             return oldItem == newItem
         }
     }
