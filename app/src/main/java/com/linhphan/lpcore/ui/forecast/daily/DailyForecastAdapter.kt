@@ -1,4 +1,4 @@
-package com.linhphan.lpcore.ui.forecast
+package com.linhphan.lpcore.ui.forecast.daily
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
