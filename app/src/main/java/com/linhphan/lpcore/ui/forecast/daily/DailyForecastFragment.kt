@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -16,6 +17,7 @@ import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.FragmentDailyForecastBinding
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
+import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
 import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
