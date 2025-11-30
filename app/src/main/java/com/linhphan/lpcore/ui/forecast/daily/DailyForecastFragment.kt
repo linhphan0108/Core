@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,8 +26,6 @@ import timber.log.Timber
 class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyForecastFragViewModel>() {
 
     override val viewModel: DailyForecastFragViewModel by viewModels()
-
-    private val sharedViewModel: DailyForecastFragViewModel by activityViewModels()
 
     private val forecastAdapter = ForecastAdapter()
     private lateinit var dailyForecastAdapter: DailyForecastAdapter
@@ -51,8 +48,8 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
 
     override fun setupViews() {
         // Initialize adapter with click listener
-        dailyForecastAdapter = DailyForecastAdapter {
-            onDailyForecastItemClicked()
+        dailyForecastAdapter = DailyForecastAdapter { item ->
+            onDailyForecastItemClicked(item)
         }
 
         binding.rvForecast.adapter = forecastAdapter
@@ -193,26 +190,23 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         }
     }
 
-    private fun onDailyForecastItemClicked() {
-        if (isLargeScreen()) {
-            // For large screens, the details fragment should already be visible side-by-side
-            // or we might want to update it if we were passing specific data.
-            // Since both fragments observe the same ViewModel, updating the ViewModel (if we were)
-            // would automatically update the details fragment.
-            // In this case, we are just showing the list, so no specific action is strictly needed
-            // unless we want to highlight the selected item which is handled by the adapter.
 
-            // However, if the details container is empty, we should populate it.
-             val detailsFragment = parentFragmentManager.findFragmentById(R.id.fragment_container_details)
-             if (detailsFragment == null) {
-                 parentFragmentManager.commit {
-                     replace(R.id.fragment_container_details, DailyForecastDetailsFragment())
-                 }
+    private fun onDailyForecastItemClicked(item: DailyForecastUiItem) {
+        val bundle = Bundle().apply {
+            putString("selected_date", item.date)
+        }
+        val detailsFragment = DailyForecastDetailsFragment().apply {
+            arguments = bundle
+        }
+
+        if (isLargeScreen()) {
+             parentFragmentManager.commit {
+                 replace(R.id.fragment_container_details, detailsFragment)
              }
         } else {
             // On smaller screens, navigate to the details fragment
             parentFragmentManager.commit {
-                replace(R.id.fragment_container, DailyForecastDetailsFragment())
+                replace(R.id.fragment_container, detailsFragment)
                 addToBackStack(null)
             }
         }
