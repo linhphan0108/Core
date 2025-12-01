@@ -3,12 +3,18 @@ package com.linhphan.lpcore.ui.forecast
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.viewModels
+import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.forecast.daily.DailyForecastDetailsFragment
 import com.linhphan.lpcore.ui.forecast.daily.DailyForecastFragment
+import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
@@ -26,8 +32,9 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
                 .replace(R.id.fragment_container, DailyForecastFragment())
 
             // Check if the details container exists (large screen)
-            if (binding.root.findViewById<android.view.View>(R.id.fragment_container_details) != null) {
-                transaction.replace(R.id.fragment_container_details, DailyForecastDetailsFragment())
+            val largeScreen = isLargeScreen()
+            if (largeScreen) {
+                transaction.replace(R.id.fragment_container_details, DailyForecastDetailsFragment.newInstance(isLargeScreen = true))
             }
 
             transaction.commit()
@@ -45,6 +52,33 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     }
 
     override fun setupObservers() {
-        // Observers are now handled in the fragment
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.navigateToDetails.collect { item ->
+                    navigateToDetails(item)
+                }
+            }
+        }
+    }
+
+    private fun navigateToDetails(item: DailyForecastUiItem) {
+        val largeScreen = isLargeScreen()
+        val detailsFragment = DailyForecastDetailsFragment.newInstance(item.date, largeScreen)
+
+        if (largeScreen) {
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container_details, detailsFragment)
+            }
+        } else {
+            // On smaller screens, navigate to the details fragment
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, detailsFragment)
+                addToBackStack(null)
+            }
+        }
+    }
+
+    private fun isLargeScreen(): Boolean {
+        return binding.root.findViewById<android.view.View>(R.id.fragment_container_details) != null
     }
 }

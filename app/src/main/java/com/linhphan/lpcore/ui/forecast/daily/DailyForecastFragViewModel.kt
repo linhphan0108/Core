@@ -3,7 +3,6 @@ package com.linhphan.lpcore.ui.forecast.daily
 import androidx.lifecycle.viewModelScope
 import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
-import com.linhphan.lpcore.domain.usecase.IGetDailyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.base.fragment.BaseFragmentActivityViewModel
@@ -11,7 +10,6 @@ import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.CoordinateUiModel
 import com.linhphan.lpcore.ui.forecast.model.CurrentForecastUiModel
-import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,15 +31,11 @@ class DailyForecastFragViewModel @Inject constructor(
     private val getForecastUseCase: IGetForecastUseCase,
     private val getHourlyForecastUseCase: IGetHourlyForecastUseCase,
     private val getCurrentForecastUseCase: IGetCurrentForecastUseCase,
-    private val getDailyForecastUseCase: IGetDailyForecastUseCase,
     private val forecastUiMapper: ForecastUiMapper
 ) : BaseFragmentActivityViewModel() {
 
     private val _hourlyForecastUiState: MutableStateFlow<UiState<List<HourlyForecastUiItem>>> = MutableStateFlow(UiState.Empty)
     val hourlyForecastUiState: StateFlow<UiState<List<HourlyForecastUiItem>>> = _hourlyForecastUiState.asStateFlow()
-
-    private val _dailyForecastUiState: MutableStateFlow<UiState<List<DailyForecastUiItem>>> = MutableStateFlow(UiState.Empty)
-    val dailyForecastUiState: StateFlow<UiState<List<DailyForecastUiItem>>> = _dailyForecastUiState.asStateFlow()
 
     private val _currentForecastUiState: MutableStateFlow<UiState<CurrentForecastUiModel>> =
         MutableStateFlow(UiState.Empty)
@@ -56,7 +50,6 @@ class DailyForecastFragViewModel @Inject constructor(
         if (old == new) return@observable
         fetchCurrentForecast(new.coordinate.lat, new.coordinate.lon, new.coordinate.timezone)
         fetch24HourlyForecast(new.coordinate.lat, new.coordinate.lon, new.coordinate.timezone)
-        fetch10DayDailyForecast(new.coordinate.lat, new.coordinate.lon, new.coordinate.timezone)
     }
 
     fun fetchCurrentForecast(lat: Double, lon: Double, timezone: String) {
@@ -129,38 +122,6 @@ class DailyForecastFragViewModel @Inject constructor(
         }
     }
 
-    fun fetch10DayDailyForecast(lat: Double, lon: Double, timezone: String) {
-        val (startDate, endDate) = calculateStartAndEndDateForDaily(timezone)
-
-        viewModelScope.launch {
-            _dailyForecastUiState.value = UiState.Loading
-            val result = getDailyForecastUseCase(
-                IGetDailyForecastUseCase.Params(
-                    lat,
-                    lon,
-                    timezone,
-                    startDate,
-                    endDate
-                )
-            )
-            when (result) {
-                is Result.Success -> {
-                    val dailyForecastUiItems = forecastUiMapper.mapToUiModel(domainModel = result.data)
-                    if (dailyForecastUiItems.isNotEmpty()) {
-                        _dailyForecastUiState.value = UiState.Success(dailyForecastUiItems)
-                    } else {
-                        _dailyForecastUiState.value = UiState.Empty
-                    }
-                }
-
-                is Result.Error -> {
-                    _dailyForecastUiState.value = UiState.Error(result.exception.message)
-                    Timber.e(result.exception, "Error fetching daily forecast for lat=$lat, lon=$lon")
-                }
-            }
-        }
-    }
-
     private fun calculateStartAndEndDate(timezone: String): Pair<String, String> {
         var timeZone = TimeZone.getTimeZone(timezone)
         if (timeZone.id == "GMT" &&
@@ -177,28 +138,6 @@ class DailyForecastFragViewModel @Inject constructor(
         val startDate = dateFormat.format(calendar.time)
 
         calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val endDate = dateFormat.format(calendar.time)
-
-        return startDate to endDate
-    }
-
-    private fun calculateStartAndEndDateForDaily(timezone: String): Pair<String, String> {
-        var timeZone = TimeZone.getTimeZone(timezone)
-        if (timeZone.id == "GMT" &&
-            !timezone.equals("GMT", ignoreCase = true) &&
-            !timezone.equals("UTC", ignoreCase = true)
-        ) {
-            timeZone = TimeZone.getDefault()
-        }
-
-        val calendar = Calendar.getInstance(timeZone)
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        dateFormat.timeZone = timeZone
-
-        val startDate = dateFormat.format(calendar.time)
-
-        // Fetch 10 days forecast
-        calendar.add(Calendar.DAY_OF_YEAR, 10)
         val endDate = dateFormat.format(calendar.time)
 
         return startDate to endDate
