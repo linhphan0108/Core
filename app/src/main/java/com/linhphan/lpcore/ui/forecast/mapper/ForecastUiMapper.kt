@@ -82,6 +82,7 @@ class ForecastUiMapper @Inject constructor(
             DailyForecastUiItem(
                 day = dayFormat.format(Date(domainItem.date * 1000)),
                 date = dateFormat.format(Date(domainItem.date * 1000)),
+                dateInTimestamp = domainItem.date,
                 description = domainItem.weatherCondition.description.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 },

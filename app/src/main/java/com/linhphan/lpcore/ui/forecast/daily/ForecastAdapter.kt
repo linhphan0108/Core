@@ -11,10 +11,6 @@ import com.linhphan.lpcore.ui.forecast.model.HourlyForecastUiItem
 
 class ForecastAdapter : ListAdapter<HourlyForecastUiItem, ForecastAdapter.ForecastViewHolder>(ForecastDiffCallback()) {
 
-    fun updateData(newItems: List<HourlyForecastUiItem>) {
-        submitList(newItems)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
         val binding = ItemForecastBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ForecastViewHolder(binding)

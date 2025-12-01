@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 data class DailyForecastUiItem(
     val day: String,
     val date: String,
+    val dateInTimestamp: Long,
     val description: String,
     val tempMax: String,
     val tempMin: String,
