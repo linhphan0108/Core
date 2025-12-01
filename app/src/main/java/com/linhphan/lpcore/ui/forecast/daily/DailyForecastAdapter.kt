@@ -38,6 +38,13 @@ class DailyForecastAdapter(
         }
     }
 
+    fun selectItem(date: String) {
+        val position = currentList.indexOfFirst { it.date == date }
+        if (position != -1) {
+            updateSelection(position)
+        }
+    }
+
     private fun updateSelection(position: Int) {
         val currentList = currentList.toMutableList()
         currentList.forEachIndexed { index, item ->

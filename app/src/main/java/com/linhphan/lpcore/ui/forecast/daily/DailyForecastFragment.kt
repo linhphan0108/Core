@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.FragmentDailyForecastBinding
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
+import com.linhphan.lpcore.ui.forecast.ForecastActivityViewModel
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
@@ -28,6 +28,7 @@ import timber.log.Timber
 class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyForecastFragViewModel>() {
 
     override val viewModel: DailyForecastFragViewModel by viewModels()
+    private val forecastActivityViewModel: ForecastActivityViewModel by activityViewModels()
 
     private val forecastAdapter = ForecastAdapter()
     private lateinit var dailyForecastAdapter: DailyForecastAdapter
@@ -45,6 +46,11 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         if (viewModel.cityUiModel.name.isEmpty()) {
             val cityUiModel = cities.random()
             viewModel.cityUiModel = cityUiModel
+            forecastActivityViewModel.fetch10DayDailyForecast(
+                cityUiModel.coordinate.lat,
+                cityUiModel.coordinate.lon,
+                cityUiModel.coordinate.timezone
+            )
         }
     }
 
@@ -62,6 +68,12 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         binding.etCityName.setOnItemClickListener { parent, _, position, _ ->
             val cityUiModel = parent.getItemAtPosition(position) as CityUiModel
             viewModel.cityUiModel = cityUiModel
+            forecastActivityViewModel.fetch10DayDailyForecast(
+                cityUiModel.coordinate.lat,
+                cityUiModel.coordinate.lon,
+                cityUiModel.coordinate.timezone
+            )
+            
             // Clear focus to hide keyboard if needed
             binding.etCityName.clearFocus()
             binding.tvCityTitle.text = getFormatedCityCountry(cityUiModel)
@@ -161,7 +173,7 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dailyForecastUiState.collect { uiState ->
+                forecastActivityViewModel.dailyForecastUiState.collect { uiState ->
                     when (uiState) {
                         is UiState.Loading -> {
                             binding.dailyForecastProgressBar.isVisible = true
@@ -192,30 +204,8 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         }
     }
 
-
     private fun onDailyForecastItemClicked(item: DailyForecastUiItem) {
-        val bundle = Bundle().apply {
-            putString("selected_date", item.date)
-        }
-        val detailsFragment = DailyForecastDetailsFragment().apply {
-            arguments = bundle
-        }
-
-        if (isLargeScreen()) {
-             parentFragmentManager.commit {
-                 replace(R.id.fragment_container_details, detailsFragment)
-             }
-        } else {
-            // On smaller screens, navigate to the details fragment
-            parentFragmentManager.commit {
-                replace(R.id.fragment_container, detailsFragment)
-                addToBackStack(null)
-            }
-        }
-    }
-    
-    private fun isLargeScreen(): Boolean {
-        return requireActivity().findViewById<View>(R.id.fragment_container_details) != null
+        forecastActivityViewModel.onDailyForecastItemClicked(item)
     }
 
     private fun getFormatedCityCountry(cityUiModel: CityUiModel): String {

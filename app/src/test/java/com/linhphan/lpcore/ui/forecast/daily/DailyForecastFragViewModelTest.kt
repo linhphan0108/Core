@@ -7,7 +7,6 @@ import com.linhphan.lpcore.domain.model.DailyForecasts
 import com.linhphan.lpcore.domain.model.HourlyForecast
 import com.linhphan.lpcore.domain.model.HourlyForecasts
 import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
-import com.linhphan.lpcore.domain.usecase.IGetDailyForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetForecastUseCase
 import com.linhphan.lpcore.domain.usecase.IGetHourlyForecastUseCase
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
@@ -47,9 +46,6 @@ class DailyForecastFragViewModelTest {
     private lateinit var getCurrentForecastUseCase: IGetCurrentForecastUseCase
 
     @MockK
-    private lateinit var getDailyForecastUseCase: IGetDailyForecastUseCase
-
-    @MockK
     private lateinit var forecastUiMapper: ForecastUiMapper
 
     private lateinit var viewModel: DailyForecastFragViewModel
@@ -64,7 +60,6 @@ class DailyForecastFragViewModelTest {
             getForecastUseCase,
             getHourlyForecastUseCase,
             getCurrentForecastUseCase,
-            getDailyForecastUseCase,
             forecastUiMapper
         )
     }
@@ -93,11 +88,6 @@ class DailyForecastFragViewModelTest {
         coEvery { getHourlyForecastUseCase(any()) } returns Result.Success(hourlyForecasts)
         coEvery { forecastUiMapper.mapToUiModel(hourlyForecasts) } returns hourlyForecastUiItems
 
-        val dailyForecasts = mockk<DailyForecasts>()
-        val dailyForecastUiItems = listOf<DailyForecastUiItem>()
-        coEvery { getDailyForecastUseCase(any()) } returns Result.Success(dailyForecasts)
-        coEvery { forecastUiMapper.mapToUiModel(dailyForecasts) } returns dailyForecastUiItems
-
         // When
         viewModel.cityUiModel = cityUiModel
 
@@ -111,9 +101,6 @@ class DailyForecastFragViewModelTest {
 
         // Hourly Forecast (Empty list returned in setup)
         assertTrue(viewModel.hourlyForecastUiState.value is UiState.Empty)
-
-        // Daily Forecast (Empty list returned in setup)
-        assertTrue(viewModel.dailyForecastUiState.value is UiState.Empty)
     }
 
     @Test
@@ -191,26 +178,6 @@ class DailyForecastFragViewModelTest {
 
         // Then
         assertTrue(viewModel.hourlyForecastUiState.value is UiState.Empty)
-    }
-
-    @Test
-    fun `fetch10DayDailyForecast updates state to Success with data`() = runTest {
-        // Given
-        val lat = 10.0
-        val lon = 20.0
-        val timezone = "UTC"
-        val dailyForecasts = mockk<DailyForecasts>()
-        val dailyForecastUiItems = listOf(mockk<DailyForecastUiItem>())
-
-        coEvery { getDailyForecastUseCase(any()) } returns Result.Success(dailyForecasts)
-        coEvery { forecastUiMapper.mapToUiModel(dailyForecasts) } returns dailyForecastUiItems
-
-        // When
-        viewModel.fetch10DayDailyForecast(lat, lon, timezone)
-
-        // Then
-        assertTrue(viewModel.dailyForecastUiState.value is UiState.Success)
-        assertEquals(dailyForecastUiItems, (viewModel.dailyForecastUiState.value as UiState.Success).data)
     }
     
      @Test
