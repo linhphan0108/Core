@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
+import com.linhphan.lpcore.ui.forecast.daily.DailyForecastDetailsFragment
 import com.linhphan.lpcore.ui.forecast.daily.DailyForecastFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,9 +22,15 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
+            val transaction = supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, DailyForecastFragment())
-                .commit()
+
+            // Check if the details container exists (large screen)
+            if (binding.root.findViewById<android.view.View>(R.id.fragment_container_details) != null) {
+                transaction.replace(R.id.fragment_container_details, DailyForecastDetailsFragment())
+            }
+
+            transaction.commit()
         }
     }
 

@@ -1,19 +1,24 @@
 package com.linhphan.lpcore.domain.usecase.impl
 
+import com.linhphan.lpcore.di.IoDispatcher
 import com.linhphan.lpcore.domain.base.Result
+import com.linhphan.lpcore.domain.base.SuspendUseCase
 import com.linhphan.lpcore.domain.model.CurrentForecast
 import com.linhphan.lpcore.domain.repository.ForecastRepository
 import com.linhphan.lpcore.domain.usecase.IGetCurrentForecastUseCase
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 
 class GetCurrentForecastUseCase @Inject constructor(
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
     private val repository: ForecastRepository,
-) : IGetCurrentForecastUseCase {
-    override suspend fun invoke(params: IGetCurrentForecastUseCase.Params): Result<CurrentForecast> {
+) : SuspendUseCase<IGetCurrentForecastUseCase.Params, CurrentForecast>(ioDispatcher), IGetCurrentForecastUseCase {
+
+    override suspend fun execute(parameters: IGetCurrentForecastUseCase.Params): Result<CurrentForecast> {
         return repository.getCurrentForecast(
-            lat = params.lat,
-            lon = params.lon,
-            timezone = params.timezone,
+            lat = parameters.lat,
+            lon = parameters.lon,
+            timezone = parameters.timezone,
         )
     }
 }

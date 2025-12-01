@@ -1,9 +1,9 @@
 package com.linhphan.lpcore.domain.usecase
 
-import com.linhphan.lpcore.domain.base.Result
+import com.linhphan.lpcore.domain.base.ISuspendUseCase
 import com.linhphan.lpcore.domain.model.CurrentForecast
 
-interface IGetCurrentForecastUseCase {
+interface IGetCurrentForecastUseCase : ISuspendUseCase<IGetCurrentForecastUseCase.Params, CurrentForecast> {
     data class Params(
         val lat: Double,
         val lon: Double,
@@ -11,6 +11,4 @@ interface IGetCurrentForecastUseCase {
         val startDate: String? = null,
         val endDate: String? = null
     )
-
-    suspend operator fun invoke(params: Params): Result<CurrentForecast>
 }

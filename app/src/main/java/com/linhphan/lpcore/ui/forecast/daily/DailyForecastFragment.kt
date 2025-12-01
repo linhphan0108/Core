@@ -7,13 +7,17 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.linhphan.lpcore.R
 import com.linhphan.lpcore.databinding.FragmentDailyForecastBinding
 import com.linhphan.lpcore.ui.base.fragment.BaseFragment
 import com.linhphan.lpcore.ui.forecast.model.CityUiModel
+import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
 import com.linhphan.lpcore.ui.forecast.model.cities
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +30,7 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
     override val viewModel: DailyForecastFragViewModel by viewModels()
 
     private val forecastAdapter = ForecastAdapter()
-    private val dailyForecastAdapter = DailyForecastAdapter()
+    private lateinit var dailyForecastAdapter: DailyForecastAdapter
 
     override fun getViewBinding(
         inflater: LayoutInflater,
@@ -45,6 +49,11 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
     }
 
     override fun setupViews() {
+        // Initialize adapter with click listener
+        dailyForecastAdapter = DailyForecastAdapter { item ->
+            onDailyForecastItemClicked(item)
+        }
+
         binding.rvForecast.adapter = forecastAdapter
         binding.rvDailyForecast.adapter = dailyForecastAdapter
 
@@ -62,12 +71,12 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         binding.etCityName.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.etCityName.showDropDown()
-                Timber.Forest.i("etCityName focused")
+                Timber.i("etCityName focused")
             }
         }
         binding.etCityName.setOnClickListener {
             binding.etCityName.showDropDown()
-            Timber.Forest.i("etCityName clicked")
+            Timber.i("etCityName clicked")
         }
     }
 
@@ -183,7 +192,33 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
         }
     }
 
+
+    private fun onDailyForecastItemClicked(item: DailyForecastUiItem) {
+        val bundle = Bundle().apply {
+            putString("selected_date", item.date)
+        }
+        val detailsFragment = DailyForecastDetailsFragment().apply {
+            arguments = bundle
+        }
+
+        if (isLargeScreen()) {
+             parentFragmentManager.commit {
+                 replace(R.id.fragment_container_details, detailsFragment)
+             }
+        } else {
+            // On smaller screens, navigate to the details fragment
+            parentFragmentManager.commit {
+                replace(R.id.fragment_container, detailsFragment)
+                addToBackStack(null)
+            }
+        }
+    }
+    
+    private fun isLargeScreen(): Boolean {
+        return requireActivity().findViewById<View>(R.id.fragment_container_details) != null
+    }
+
     private fun getFormatedCityCountry(cityUiModel: CityUiModel): String {
-        return getString(com.linhphan.lpcore.R.string.city_country_format, cityUiModel.name, cityUiModel.country)
+        return getString(R.string.city_country_format, cityUiModel.name, cityUiModel.country)
     }
 }
