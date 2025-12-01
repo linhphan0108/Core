@@ -153,7 +153,7 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
                         }
 
                         is UiState.Success -> {
-                            forecastAdapter.updateData(uiState.data)
+                            forecastAdapter.submitList(uiState.data)
                             binding.hourlyForecastprogressBar.isVisible = false
                             binding.rvForecast.isVisible = true
                         }
@@ -205,7 +205,7 @@ class DailyForecastFragment : BaseFragment<FragmentDailyForecastBinding, DailyFo
     }
 
     private fun onDailyForecastItemClicked(item: DailyForecastUiItem) {
-        forecastActivityViewModel.onDailyForecastItemClicked(item)
+        forecastActivityViewModel.onDailyForecastItemClicked(item, viewModel.cityUiModel)
     }
 
     private fun getFormatedCityCountry(cityUiModel: CityUiModel): String {

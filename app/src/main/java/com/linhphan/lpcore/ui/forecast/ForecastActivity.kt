@@ -12,6 +12,7 @@ import com.linhphan.lpcore.databinding.ActivityForecastBinding
 import com.linhphan.lpcore.ui.base.activity.BaseActivity
 import com.linhphan.lpcore.ui.forecast.daily.DailyForecastDetailsFragment
 import com.linhphan.lpcore.ui.forecast.daily.DailyForecastFragment
+import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -54,16 +55,16 @@ class ForecastActivity : BaseActivity<ActivityForecastBinding>() {
     override fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.navigateToDetails.collect { item ->
-                    navigateToDetails(item)
+                viewModel.navigateToDetails.collect { (item, cityUiModel) ->
+                    navigateToDetails(item, cityUiModel)
                 }
             }
         }
     }
 
-    private fun navigateToDetails(item: DailyForecastUiItem) {
+    private fun navigateToDetails(item: DailyForecastUiItem, cityUiModel: CityUiModel) {
         val largeScreen = isLargeScreen()
-        val detailsFragment = DailyForecastDetailsFragment.newInstance(item.date, largeScreen)
+        val detailsFragment = DailyForecastDetailsFragment.newInstance(item.dateInTimestamp, cityUiModel, largeScreen)
 
         if (largeScreen) {
             supportFragmentManager.commit {

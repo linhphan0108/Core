@@ -5,6 +5,7 @@ import com.linhphan.lpcore.domain.base.Result
 import com.linhphan.lpcore.domain.usecase.IGetDailyForecastUseCase
 import com.linhphan.lpcore.ui.base.activity.BaseActivityViewModel
 import com.linhphan.lpcore.ui.forecast.mapper.ForecastUiMapper
+import com.linhphan.lpcore.ui.forecast.model.CityUiModel
 import com.linhphan.lpcore.ui.forecast.model.DailyForecastUiItem
 import com.linhphan.lpcore.ui.forecast.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,8 +32,8 @@ class ForecastActivityViewModel @Inject constructor(
     private val _dailyForecastUiState: MutableStateFlow<UiState<List<DailyForecastUiItem>>> = MutableStateFlow(UiState.Empty)
     val dailyForecastUiState: StateFlow<UiState<List<DailyForecastUiItem>>> = _dailyForecastUiState.asStateFlow()
 
-    private val _navigateToDetails = MutableSharedFlow<DailyForecastUiItem>()
-    val navigateToDetails: SharedFlow<DailyForecastUiItem> = _navigateToDetails.asSharedFlow()
+    private val _navigateToDetails = MutableSharedFlow<Pair<DailyForecastUiItem, CityUiModel>>()
+    val navigateToDetails: SharedFlow<Pair<DailyForecastUiItem, CityUiModel>> = _navigateToDetails.asSharedFlow()
 
     fun fetch10DayDailyForecast(lat: Double, lon: Double, timezone: String) {
         val (startDate, endDate) = calculateStartAndEndDateForDaily(timezone)
@@ -66,9 +67,9 @@ class ForecastActivityViewModel @Inject constructor(
         }
     }
 
-    fun onDailyForecastItemClicked(item: DailyForecastUiItem) {
+    fun onDailyForecastItemClicked(item: DailyForecastUiItem, cityUiModel: CityUiModel) {
         viewModelScope.launch {
-            _navigateToDetails.emit(item)
+            _navigateToDetails.emit(item to cityUiModel)
         }
     }
 
